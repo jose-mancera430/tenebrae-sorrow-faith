@@ -71,6 +71,53 @@ Entity
 ├── Projectile
 └── EnemyProjectile
 
+
+### Entity
+
+La clase `Entity` funciona como una clase base para diferentes objetos del videojuego.
+
+Su constructor recibe las coordenadas `x` y `y`, además de `width` y `height`, que representan la posición y las dimensiones de la entidad.
+
+También utiliza la propiedad `active` para indicar si una entidad se encuentra activa dentro del juego.
+
+Los métodos `activate()` y `deactivate()` permiten cambiar este estado sin eliminar necesariamente el objeto de memoria.
+
+#### Detección de colisiones
+
+El método `collidesWith(other)` permite comprobar si una entidad está colisionando con otra.
+
+La detección utiliza las coordenadas y dimensiones de ambos objetos para comprobar la superposición de sus rectángulos:
+
+`this.x < other.x + other.width`
+
+`this.x + this.width > other.x`
+
+`this.y < other.y + other.height`
+
+`this.y + this.height > other.y`
+
+Si las cuatro condiciones se cumplen, los rectángulos se están superponiendo y el método devuelve `true`.
+
+Este sistema corresponde a una detección de colisiones rectangular basada en los límites de las entidades y es reutilizado por los componentes que heredan de `Entity`.
+
+### DamageableEntity
+
+La clase `DamageableEntity` hereda de `Entity` y agrega un sistema de vida para las entidades que pueden recibir daño.
+
+Su constructor recibe `maxHealth`, que representa la cantidad máxima de vida de la entidad.
+
+La propiedad `health` almacena la vida actual y se inicializa con el mismo valor de `maxHealth`.
+
+El método `takeDamage(amount)` resta a `health` la cantidad de daño recibida. Si el resultado es menor que cero, la vida se limita a `0`.
+
+El método `isDestroyed()` comprueba si la vida de la entidad es menor o igual a cero y devuelve el resultado de esa condición.
+
+La clase también sobrescribe el método `activate()`. Primero ejecuta `super.activate()` para volver a activar la entidad y después restaura su vida mediante:
+
+`health = maxHealth`
+
+De esta manera, las entidades que heredan de `DamageableEntity`, como `Player` y `Enemy`, pueden compartir el mismo sistema básico de vida y daño.
+
 ## Sistema de proyectiles y Object Pooling
 
 El proyecto utiliza el patrón Object Pooling para administrar los proyectiles. Su objetivo es reutilizar objetos previamente creados en lugar de crear y eliminar continuamente nuevas instancias durante la ejecución del videojuego.
