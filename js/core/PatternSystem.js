@@ -1,9 +1,13 @@
+import { SeededRandom } from "./SeededRandom.js";
 export class PatternSystem {
-    constructor() {
-        this.patterns = {};
+    constructor(seed = 1) {
+    this.patterns = {};
 
-        this.registerDefaultPatterns();
-    }
+    this.random =
+        new SeededRandom(seed);
+
+    this.registerDefaultPatterns();
+}
 
     registerDefaultPatterns() {
         this.registerPattern(
@@ -314,12 +318,11 @@ export class PatternSystem {
             i++
         ) {
             const randomOffset =
-                (
-                    Math.random() -
-                    0.5
-                ) *
-                spreadRadians;
-
+    (
+        this.random.next() -
+        0.5
+    ) *
+    spreadRadians;
             const angle =
                 baseAngle +
                 randomOffset;
@@ -340,4 +343,11 @@ export class PatternSystem {
 
         return velocities;
     }
+setSeed(seed) {
+    this.random.setSeed(seed);
+}
+
+getSeed() {
+    return this.random.seed;
+}
 }

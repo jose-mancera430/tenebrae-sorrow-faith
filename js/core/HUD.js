@@ -3,7 +3,8 @@ export class HUD {
         ctx,
         player,
         currentWave,
-        maxWaves
+        maxWaves,
+        gameSeed
     ) {
         ctx.fillStyle = "#f5f5dc";
         ctx.font = "24px serif";
@@ -43,6 +44,12 @@ export class HUD {
             `Enemigos destruidos: ${player.enemiesDestroyed}`,
             20,
             185
+        );
+
+        ctx.fillText(
+            `Seed: ${gameSeed}`,
+            20,
+            215
         );
     }
 }

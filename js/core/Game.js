@@ -20,21 +20,30 @@ export class Game {
             this.input
         );
 
-        this.projectilePool = new ProjectilePool(100);
+        this.projectilePool =
+            new ProjectilePool(100);
 
         this.enemyProjectilePool =
             new EnemyProjectilePool(100);
 
-        this.enemyManager = new EnemyManager();
-        
+        this.enemyManager =
+            new EnemyManager();
+
+        this.gameSeed = 12345;
+
         this.patternSystem =
-    new PatternSystem();
+            new PatternSystem(
+                this.gameSeed
+            );
 
-        this.hud = new HUD();
+        this.hud =
+            new HUD();
 
-        this.gameStateUI = new GameStateUI();
+        this.gameStateUI =
+            new GameStateUI();
 
-        this.waveManager = new WaveManager(6);
+        this.waveManager =
+            new WaveManager(6);
 
         this.levelFinished = false;
         this.gameOver = false;
@@ -66,7 +75,9 @@ export class Game {
             return;
         }
 
-        this.player.update(deltaTime);
+        this.player.update(
+            deltaTime
+        );
 
         this.handlePlayerShooting();
 
@@ -95,10 +106,11 @@ export class Game {
         this.enemyManager.checkPlayerCollisions(
             this.player
         );
+
         this.enemyManager.checkEnemyProjectileCollisions(
-    this.enemyProjectilePool,
-    this.player
-);
+            this.enemyProjectilePool,
+            this.player
+        );
 
         this.checkGameOver();
 
@@ -132,11 +144,15 @@ export class Game {
     }
 
     checkWaveFinished() {
-        if (this.waveManager.waveFinished) {
+        if (
+            this.waveManager.waveFinished
+        ) {
             return;
         }
 
-        if (!this.enemyManager.hasActiveEnemies()) {
+        if (
+            !this.enemyManager.hasActiveEnemies()
+        ) {
             this.waveManager.markWaveFinished();
 
             console.log(
@@ -146,7 +162,9 @@ export class Game {
 
             this.enemyManager.removeInactiveEnemies();
 
-            if (this.waveManager.canAdvance()) {
+            if (
+                this.waveManager.canAdvance()
+            ) {
                 this.startNextWave();
             } else {
                 this.finishLevel();
@@ -155,25 +173,25 @@ export class Game {
     }
 
     startNextWave() {
-    const advanced =
-        this.waveManager.advanceWave();
+        const advanced =
+            this.waveManager.advanceWave();
 
-    if (!advanced) {
-        return;
+        if (!advanced) {
+            return;
+        }
+
+        this.enemyProjectilePool.reset();
+
+        this.enemyManager.createWave(
+            this.waveManager.currentWave,
+            this.canvas
+        );
+
+        console.log(
+            "OLEADA INICIADA:",
+            this.waveManager.currentWave
+        );
     }
-
-    this.enemyProjectilePool.reset();
-
-    this.enemyManager.createWave(
-        this.waveManager.currentWave,
-        this.canvas
-    );
-
-    console.log(
-        "OLEADA INICIADA:",
-        this.waveManager.currentWave
-    );
-}
 
     finishLevel() {
         if (this.levelFinished) {
@@ -182,7 +200,9 @@ export class Game {
 
         this.levelFinished = true;
 
-        console.log("NIVEL TERMINADO");
+        console.log(
+            "NIVEL TERMINADO"
+        );
     }
 
     restartGame() {
@@ -196,6 +216,10 @@ export class Game {
         this.projectilePool.reset();
 
         this.enemyProjectilePool.reset();
+
+        this.patternSystem.setSeed(
+            this.gameSeed
+        );
 
         this.waveManager.reset();
 
@@ -217,7 +241,9 @@ export class Game {
             this.ctx
         );
 
-        if (!this.player.isDestroyed()) {
+        if (
+            !this.player.isDestroyed()
+        ) {
             this.player.render(
                 this.ctx
             );
@@ -235,7 +261,8 @@ export class Game {
             this.ctx,
             this.player,
             this.waveManager.currentWave,
-            this.waveManager.maxWaves
+            this.waveManager.maxWaves,
+            this.gameSeed
         );
 
         if (this.levelFinished) {
@@ -255,11 +282,18 @@ export class Game {
 
     gameLoop(tiempoActual) {
         const deltaTime =
-            (tiempoActual - this.tiempoAnterior) / 1000;
+            (
+                tiempoActual -
+                this.tiempoAnterior
+            ) / 1000;
 
-        this.tiempoAnterior = tiempoActual;
+        this.tiempoAnterior =
+            tiempoActual;
 
-        this.update(deltaTime);
+        this.update(
+            deltaTime
+        );
+
         this.render();
 
         requestAnimationFrame(
