@@ -447,3 +447,162 @@ Después divide el resultado entre `4294967296` para obtener un valor pseudoalea
 Este sistema permite obtener secuencias reproducibles: si se utiliza la misma semilla inicial y se realizan las llamadas en el mismo orden, se genera la misma secuencia de valores.
 
 `PatternSystem` utiliza esta clase en el patrón `random-5`, evitando depender directamente de `Math.random()` para calcular la variación aleatoria de los disparos.
+
+## Sistema de entrada
+
+### InputManager
+
+La clase `InputManager` es responsable de registrar el estado de las teclas utilizadas durante la ejecución del videojuego.
+
+Internamente mantiene un objeto llamado `keys`, donde se almacena si una tecla se encuentra presionada o liberada.
+
+Para detectar la entrada del teclado utiliza dos eventos del navegador:
+
+- `keydown`: establece el estado de la tecla en `true` cuando se presiona.
+- `keyup`: establece el estado de la tecla en `false` cuando se libera.
+
+Las teclas se identifican mediante `event.code`.
+
+El método `isPressed(code)` permite consultar si una tecla específica se encuentra presionada.
+
+`InputManager` no asigna por sí mismo una acción específica a cada tecla. Las diferentes clases del videojuego consultan este sistema para determinar qué acciones deben realizar, como el movimiento, el disparo o el reinicio de la partida.
+
+
+## Inicialización del videojuego
+
+### main.js
+
+El archivo `main.js` funciona como punto de inicio del videojuego.
+
+Primero obtiene el elemento Canvas con el identificador `game-canvas` y su contexto gráfico 2D.
+
+Posteriormente, la función asíncrona `startGame()` establece inicialmente una semilla de respaldo con el valor `12345`.
+
+El sistema intenta obtener una semilla diaria realizando una petición mediante `fetch()` al endpoint:
+
+`/api/daily-seed`
+
+Si la respuesta del servidor es correcta, la semilla recibida en `data.seed` sustituye a la semilla de respaldo.
+
+Si ocurre un error al realizar la petición o la respuesta no es correcta, el juego conserva la semilla de respaldo `12345`.
+
+Finalmente, se crea una instancia de `Game` proporcionando el Canvas, el contexto 2D y la semilla obtenida:
+
+`new Game(canvas, ctx, gameSeed)`
+
+Después se ejecuta `game.start()` para iniciar el ciclo principal del videojuego.
+
+## Servidor con Node.js
+
+### server.cjs
+
+El archivo `server/server.cjs` implementa el servidor utilizado por el proyecto mediante módulos nativos de Node.js.
+
+El servidor utiliza principalmente los módulos:
+
+- `http`: permite crear el servidor HTTP.
+- `fs`: permite comprobar y leer los archivos que serán enviados al navegador.
+- `path`: permite construir y normalizar las rutas de los archivos.
+
+El servidor funciona en el puerto `3000` y utiliza como directorio raíz la carpeta principal del proyecto.
+
+### Seed diaria
+
+La función `getDailySeed()` genera una semilla numérica utilizando la fecha actual del servidor.
+
+La semilla se calcula mediante:
+
+`year * 10000 + month * 100 + day`
+
+De esta manera, la fecha queda representada con el formato numérico `AAAAMMDD`.
+
+Por ejemplo, una fecha correspondiente al año 2026, mes 9 y día 21 produciría la seed `20260921`.
+
+El endpoint `/api/daily-seed` ejecuta esta función y responde con un objeto JSON que contiene la semilla:
+
+`{ "seed": valor }`
+
+La respuesta utiliza el código HTTP `200` y establece `Cache-Control: no-store` para evitar que el navegador reutilice una respuesta almacenada en caché.
+
+### Servicio de archivos
+
+Además de proporcionar la seed diaria, el servidor permite entregar los archivos necesarios para ejecutar el videojuego.
+
+Cuando se solicita la ruta `/`, el servidor utiliza `index.html` como página principal.
+
+El servidor determina el tipo de contenido de los archivos mediante su extensión y contempla formatos como HTML, CSS, JavaScript, JSON, imágenes y audio.
+
+También contempla respuestas de error:
+
+- `403`: acceso denegado cuando la ruta intenta salir del directorio del proyecto.
+- `404`: archivo no encontrado.
+- `500`: error interno al leer un archivo.
+
+Finalmente, `server.listen()` inicia el servidor en el puerto `3000`.
+
+## Configuración de Node.js
+
+### package.json
+
+El archivo `package.json` contiene la configuración básica del proyecto para Node.js.
+
+Actualmente el proyecto se identifica como `tenebrae-sorrow-faith`, con la versión `1.0.0`.
+
+La propiedad `"type": "module"` establece el uso de módulos ES para los archivos JavaScript del proyecto, permitiendo utilizar instrucciones como `import` y `export`.
+
+Actualmente `package.json` no contiene dependencias externas declaradas.
+
+El apartado `scripts` contiene únicamente un script de prueba predeterminado y no incluye todavía un script específico para iniciar `server/server.cjs`.
+
+Por esta razón, la documentación no debe indicar `npm start` como comando de ejecución mientras dicho script no exista.
+
+## Estructura de la página principal
+
+### index.html
+
+El archivo `index.html` funciona como la página principal desde la cual se carga el videojuego.
+
+El documento utiliza HTML5 y establece el idioma de la página en español mediante `lang="es"`.
+
+Dentro del elemento `<main>` se encuentra el contenedor principal del juego con el identificador `game-container`.
+
+La página muestra el título `TENEBRAE: SORROW & FAITH` y contiene un elemento `<canvas>` con el identificador `game-canvas`.
+
+El Canvas tiene actualmente una resolución de:
+
+`1280 × 720 píxeles`
+
+Este Canvas funciona como el área gráfica principal donde se renderizan el jugador, los enemigos, los proyectiles, el HUD y los diferentes estados visuales de la partida.
+
+La hoja de estilos utilizada por la página se carga desde:
+
+`css/main.css`
+
+Finalmente, el videojuego se inicia cargando:
+
+`js/main.js`
+
+El script utiliza `type="module"`, permitiendo trabajar con los módulos ES utilizados por las diferentes clases del proyecto.
+
+## Diseño visual de la página
+
+### main.css
+
+El archivo `css/main.css` define la presentación general de la página donde se ejecuta el videojuego.
+
+Los elementos `html` y `body` ocupan el 100 % del ancho y alto disponible. También se elimina el margen predeterminado y se utiliza `overflow: hidden` para evitar barras de desplazamiento.
+
+La página utiliza un fondo de color oscuro (`#111111`) y texto claro (`#eeeeee`).
+
+El contenedor `game-container` utiliza Flexbox para organizar sus elementos en columna y mantenerlos centrados horizontal y verticalmente.
+
+El título principal utiliza un tamaño de fuente de 32 píxeles y alineación centrada.
+
+El elemento `game-canvas` se muestra como un bloque y utiliza:
+
+- `95vw` de ancho visual.
+- `85vh` de alto visual.
+- Fondo negro (`#000000`).
+- Borde de 1 píxel con color `#444444`.
+
+Aunque CSS adapta visualmente el Canvas al tamaño de la ventana, el tamaño interno definido en `index.html` es de `1280 × 720` píxeles.
