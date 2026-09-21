@@ -5,13 +5,28 @@ import { HeavyEnemy } from "./HeavyEnemy.js";
 import { HunterEnemy } from "./HunterEnemy.js";
 import { BasicEnemy } from "./BasicEnemy.js";
 import { FormationManager } from "./FormationManager.js";
+import { SeededRandom } from "./SeededRandom.js";
 
 export class EnemyManager {
-    constructor() {
+    constructor(seed = 1) {
         this.enemies = [];
 
         this.formationManager =
             new FormationManager();
+
+        this.random =
+            new SeededRandom(seed);
+    }
+
+    setSeed(seed) {
+        this.random.setSeed(seed);
+    }
+
+    getRandomInteger(min, max) {
+        return Math.floor(
+            this.random.next() *
+            (max - min + 1)
+        ) + min;
     }
 
     addEnemy(enemy) {
@@ -168,21 +183,35 @@ export class EnemyManager {
         const formation =
             this.formationManager.createLineFormation();
 
-        const enemy1 = this.createEnemy(
-            0, 0, 50, 50, 3
+        const enemyCount =
+            this.getRandomInteger(
+                3,
+                5
+            );
+
+        console.log(
+            "OLEADA 1 - enemigos:",
+            enemyCount
         );
 
-        const enemy2 = this.createEnemy(
-            0, 0, 50, 50, 3
-        );
+        for (
+            let i = 0;
+            i < enemyCount;
+            i++
+        ) {
+            const enemy =
+                this.createEnemy(
+                    0,
+                    0,
+                    50,
+                    50,
+                    3
+                );
 
-        const enemy3 = this.createEnemy(
-            0, 0, 50, 50, 3
-        );
-
-        formation.addEnemy(enemy1);
-        formation.addEnemy(enemy2);
-        formation.addEnemy(enemy3);
+            formation.addEnemy(
+                enemy
+            );
+        }
 
         formation.arrange(
             canvas.width * 0.25,
@@ -195,31 +224,35 @@ export class EnemyManager {
         const formation =
             this.formationManager.createVFormation();
 
-        const enemy1 = this.createHunterEnemy(
-            0, 0, 50, 50, 3
+        const enemyCount =
+            this.getRandomInteger(
+                4,
+                6
+            );
+
+        console.log(
+            "OLEADA 2 - enemigos:",
+            enemyCount
         );
 
-        const enemy2 = this.createHunterEnemy(
-            0, 0, 50, 50, 3
-        );
+        for (
+            let i = 0;
+            i < enemyCount;
+            i++
+        ) {
+            const enemy =
+                this.createHunterEnemy(
+                    0,
+                    0,
+                    50,
+                    50,
+                    3
+                );
 
-        const enemy3 = this.createHunterEnemy(
-            0, 0, 50, 50, 3
-        );
-
-        const enemy4 = this.createHunterEnemy(
-            0, 0, 50, 50, 3
-        );
-
-        const enemy5 = this.createHunterEnemy(
-            0, 0, 50, 50, 3
-        );
-
-        formation.addEnemy(enemy1);
-        formation.addEnemy(enemy2);
-        formation.addEnemy(enemy3);
-        formation.addEnemy(enemy4);
-        formation.addEnemy(enemy5);
+            formation.addEnemy(
+                enemy
+            );
+        }
 
         formation.arrange(
             canvas.width / 2,
@@ -233,29 +266,59 @@ export class EnemyManager {
         const formation =
             this.formationManager.createCircleFormation();
 
-        const enemy1 = this.createTurretEnemy(
-            0, 0, 50, 50, 3
-        );
+        const enemy1 =
+            this.createTurretEnemy(
+                0,
+                0,
+                50,
+                50,
+                3
+            );
 
-        const enemy2 = this.createTurretEnemy(
-            0, 0, 50, 50, 3
-        );
+        const enemy2 =
+            this.createTurretEnemy(
+                0,
+                0,
+                50,
+                50,
+                3
+            );
 
-        const enemy3 = this.createTurretEnemy(
-            0, 0, 50, 50, 3
-        );
+        const enemy3 =
+            this.createTurretEnemy(
+                0,
+                0,
+                50,
+                50,
+                3
+            );
 
-        const enemy4 = this.createTurretEnemy(
-            0, 0, 50, 50, 3
-        );
+        const enemy4 =
+            this.createTurretEnemy(
+                0,
+                0,
+                50,
+                50,
+                3
+            );
 
-        const enemy5 = this.createTurretEnemy(
-            0, 0, 50, 50, 3
-        );
+        const enemy5 =
+            this.createTurretEnemy(
+                0,
+                0,
+                50,
+                50,
+                3
+            );
 
-        const enemy6 = this.createTurretEnemy(
-            0, 0, 50, 50, 3
-        );
+        const enemy6 =
+            this.createTurretEnemy(
+                0,
+                0,
+                50,
+                50,
+                3
+            );
 
         formation.addEnemy(enemy1);
         formation.addEnemy(enemy2);
@@ -275,29 +338,59 @@ export class EnemyManager {
         const formation =
             this.formationManager.createZigzagFormation();
 
-        const enemy1 = this.createCircularEnemy(
-            0, 0, 50, 50, 3
-        );
+        const enemy1 =
+            this.createCircularEnemy(
+                0,
+                0,
+                50,
+                50,
+                3
+            );
 
-        const enemy2 = this.createCircularEnemy(
-            0, 0, 50, 50, 3
-        );
+        const enemy2 =
+            this.createCircularEnemy(
+                0,
+                0,
+                50,
+                50,
+                3
+            );
 
-        const enemy3 = this.createCircularEnemy(
-            0, 0, 50, 50, 3
-        );
+        const enemy3 =
+            this.createCircularEnemy(
+                0,
+                0,
+                50,
+                50,
+                3
+            );
 
-        const enemy4 = this.createCircularEnemy(
-            0, 0, 50, 50, 3
-        );
+        const enemy4 =
+            this.createCircularEnemy(
+                0,
+                0,
+                50,
+                50,
+                3
+            );
 
-        const enemy5 = this.createCircularEnemy(
-            0, 0, 50, 50, 3
-        );
+        const enemy5 =
+            this.createCircularEnemy(
+                0,
+                0,
+                50,
+                50,
+                3
+            );
 
-        const enemy6 = this.createCircularEnemy(
-            0, 0, 50, 50, 3
-        );
+        const enemy6 =
+            this.createCircularEnemy(
+                0,
+                0,
+                50,
+                50,
+                3
+            );
 
         formation.addEnemy(enemy1);
         formation.addEnemy(enemy2);
@@ -318,25 +411,50 @@ export class EnemyManager {
         const formation =
             this.formationManager.createColumnFormation();
 
-        const enemy1 = this.createHeavyEnemy(
-            0, 0, 50, 50, 6
-        );
+        const enemy1 =
+            this.createHeavyEnemy(
+                0,
+                0,
+                50,
+                50,
+                6
+            );
 
-        const enemy2 = this.createHeavyEnemy(
-            0, 0, 50, 50, 6
-        );
+        const enemy2 =
+            this.createHeavyEnemy(
+                0,
+                0,
+                50,
+                50,
+                6
+            );
 
-        const enemy3 = this.createHeavyEnemy(
-            0, 0, 50, 50, 6
-        );
+        const enemy3 =
+            this.createHeavyEnemy(
+                0,
+                0,
+                50,
+                50,
+                6
+            );
 
-        const enemy4 = this.createHeavyEnemy(
-            0, 0, 50, 50, 6
-        );
+        const enemy4 =
+            this.createHeavyEnemy(
+                0,
+                0,
+                50,
+                50,
+                6
+            );
 
-        const enemy5 = this.createHeavyEnemy(
-            0, 0, 50, 50, 6
-        );
+        const enemy5 =
+            this.createHeavyEnemy(
+                0,
+                0,
+                50,
+                50,
+                6
+            );
 
         formation.addEnemy(enemy1);
         formation.addEnemy(enemy2);
@@ -355,29 +473,59 @@ export class EnemyManager {
         const formation =
             this.formationManager.createSwarmFormation();
 
-        const enemy1 = this.createPursuerEnemy(
-            0, 0, 50, 50, 3
-        );
+        const enemy1 =
+            this.createPursuerEnemy(
+                0,
+                0,
+                50,
+                50,
+                3
+            );
 
-        const enemy2 = this.createPursuerEnemy(
-            0, 0, 50, 50, 3
-        );
+        const enemy2 =
+            this.createPursuerEnemy(
+                0,
+                0,
+                50,
+                50,
+                3
+            );
 
-        const enemy3 = this.createPursuerEnemy(
-            0, 0, 50, 50, 3
-        );
+        const enemy3 =
+            this.createPursuerEnemy(
+                0,
+                0,
+                50,
+                50,
+                3
+            );
 
-        const enemy4 = this.createPursuerEnemy(
-            0, 0, 50, 50, 3
-        );
+        const enemy4 =
+            this.createPursuerEnemy(
+                0,
+                0,
+                50,
+                50,
+                3
+            );
 
-        const enemy5 = this.createPursuerEnemy(
-            0, 0, 50, 50, 3
-        );
+        const enemy5 =
+            this.createPursuerEnemy(
+                0,
+                0,
+                50,
+                50,
+                3
+            );
 
-        const enemy6 = this.createPursuerEnemy(
-            0, 0, 50, 50, 3
-        );
+        const enemy6 =
+            this.createPursuerEnemy(
+                0,
+                0,
+                50,
+                50,
+                3
+            );
 
         formation.addEnemy(enemy1);
         formation.addEnemy(enemy2);
@@ -418,30 +566,30 @@ export class EnemyManager {
     }
 
     update(
-    deltaTime,
-    canvas,
-    player,
-    enemyProjectilePool,
-    patternSystem
-) {
-    this.formationManager.update(
-        deltaTime
-    );
-
-    for (const enemy of this.enemies) {
-        if (!enemy.active) {
-            continue;
-        }
-
-        enemy.update(
-            deltaTime,
-            canvas,
-            player,
-            enemyProjectilePool,
-            patternSystem
+        deltaTime,
+        canvas,
+        player,
+        enemyProjectilePool,
+        patternSystem
+    ) {
+        this.formationManager.update(
+            deltaTime
         );
+
+        for (const enemy of this.enemies) {
+            if (!enemy.active) {
+                continue;
+            }
+
+            enemy.update(
+                deltaTime,
+                canvas,
+                player,
+                enemyProjectilePool,
+                patternSystem
+            );
+        }
     }
-}
 
     checkProjectileCollisions(
         projectilePool,
@@ -502,28 +650,28 @@ export class EnemyManager {
     }
 
     checkEnemyProjectileCollisions(
-    enemyProjectilePool,
-    player
-) {
-    for (
-        const projectile
-        of enemyProjectilePool.projectiles
+        enemyProjectilePool,
+        player
     ) {
-        if (!projectile.active) {
-            continue;
-        }
-
-        if (
-            projectile.collidesWith(
-                player
-            )
+        for (
+            const projectile
+            of enemyProjectilePool.projectiles
         ) {
-            projectile.deactivate();
+            if (!projectile.active) {
+                continue;
+            }
 
-            player.takeDamage(1);
+            if (
+                projectile.collidesWith(
+                    player
+                )
+            ) {
+                projectile.deactivate();
+
+                player.takeDamage(1);
+            }
         }
     }
-}
 
     render(ctx) {
         for (const enemy of this.enemies) {

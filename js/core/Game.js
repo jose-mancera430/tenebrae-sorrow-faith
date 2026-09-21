@@ -17,12 +17,14 @@ export class Game {
         this.canvas = canvas;
         this.ctx = ctx;
 
-        this.input = new InputManager();
+        this.input =
+            new InputManager();
 
-        this.player = new Player(
-            this.canvas,
-            this.input
-        );
+        this.player =
+            new Player(
+                this.canvas,
+                this.input
+            );
 
         this.projectilePool =
             new ProjectilePool(100);
@@ -30,11 +32,13 @@ export class Game {
         this.enemyProjectilePool =
             new EnemyProjectilePool(100);
 
-        this.enemyManager =
-            new EnemyManager();
-
         this.gameSeed =
             gameSeed;
+
+        this.enemyManager =
+            new EnemyManager(
+                this.gameSeed
+            );
 
         this.patternSystem =
             new PatternSystem(
@@ -217,6 +221,10 @@ export class Game {
         this.player.reset();
 
         this.enemyManager.reset();
+
+        this.enemyManager.setSeed(
+            this.gameSeed
+        );
 
         this.projectilePool.reset();
 
