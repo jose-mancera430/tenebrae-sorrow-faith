@@ -179,6 +179,140 @@ Este sistema utiliza clases específicas para representar las formaciones y un `
 
 Antes de documentar cada formación como funcional, se verificará su integración actual con el resto del videojuego.
 
+### Formation
+
+La clase `Formation` funciona como clase base para administrar grupos de enemigos dentro de una formación.
+
+Internamente mantiene un arreglo llamado `enemies`, donde almacena los enemigos que pertenecen al grupo.
+
+Cuando un enemigo se agrega mediante `addEnemy()`, su propiedad `inFormation` se establece en `true`. Esto permite que la formación controle temporalmente su movimiento.
+
+Mientras la formación está activa, el método `update(deltaTime)` desplaza como grupo a todos los enemigos activos utilizando `speedX` y `speedY`.
+
+La configuración base utiliza una velocidad horizontal de 60 y una velocidad vertical de 0.
+
+La formación también utiliza `releaseDelay` y `releaseTimer` para controlar el tiempo durante el cual mantiene agrupados a los enemigos. Actualmente, `releaseDelay` tiene un valor de 3 segundos.
+
+Cuando transcurren los 3 segundos, `releaseEnemies()` establece `inFormation` en `false` para los enemigos activos y desactiva la formación. A partir de ese momento, cada enemigo puede ejecutar su comportamiento individual.
+
+El método `isEmpty()` permite comprobar si todavía existe algún enemigo activo dentro de la formación.
+
+### LineFormation
+
+La clase `LineFormation` hereda de `Formation` y organiza a los enemigos en una línea horizontal.
+
+El método `arrange(startX, startY, spacing)` recorre los enemigos almacenados en la formación y asigna su posición.
+
+Todos los enemigos utilizan el mismo valor vertical `startY`.
+
+La posición horizontal de cada enemigo se calcula mediante:
+
+`startX + index * spacing`
+
+De esta manera, cada integrante se coloca a una distancia determinada por `spacing` con respecto al anterior.
+
+Esta formación se utiliza actualmente en la primera oleada del videojuego con enemigos de tipo `BasicEnemy`. 
+
+### VFormation
+
+La clase `VFormation` hereda de `Formation` y organiza a los enemigos utilizando una distribución con forma de V.
+
+El método `arrange(centerX, centerY, spacingX, spacingY)` utiliza un punto central como referencia para calcular la posición de cada integrante.
+
+Primero se calcula el punto medio de la cantidad de enemigos mediante:
+
+`(total - 1) / 2`
+
+Después, cada enemigo obtiene un desplazamiento respecto a ese punto medio.
+
+La posición horizontal se calcula utilizando `centerX`, el desplazamiento y `spacingX`.
+
+La posición vertical utiliza `Math.abs(offset)` junto con `spacingY`, permitiendo distribuir simétricamente a los enemigos a ambos lados del centro.
+
+Esta formación se utiliza actualmente en la segunda oleada del videojuego con enemigos de tipo `HunterEnemy`.
+
+### CircleFormation
+
+La clase `CircleFormation` hereda de `Formation` y organiza a los enemigos alrededor de una circunferencia.
+
+El método `arrange(centerX, centerY, radius)` recibe el centro de la formación y el radio que tendrá el círculo.
+
+Primero obtiene la cantidad total de enemigos. Si la formación no contiene enemigos, el método termina para evitar realizar cálculos innecesarios.
+
+El espacio angular entre cada enemigo se calcula mediante:
+
+`(Math.PI * 2) / total`
+
+Esto divide los 360 grados de la circunferencia de manera uniforme entre todos los integrantes.
+
+Para calcular la posición de cada enemigo se utilizan las funciones trigonométricas `Math.cos()` y `Math.sin()`:
+
+`x = centerX + Math.cos(angle) * radius`
+
+`y = centerY + Math.sin(angle) * radius`
+
+De esta manera, los enemigos quedan distribuidos uniformemente alrededor del punto central.
+
+Esta formación se utiliza actualmente en la tercera oleada del videojuego con enemigos de tipo `TurretEnemy`.
+
+### ZigzagFormation
+
+La clase `ZigzagFormation` hereda de `Formation` y organiza a los enemigos utilizando un patrón de zigzag.
+
+El método `arrange(startX, startY, spacingX, spacingY)` calcula la posición de cada enemigo utilizando su índice dentro de la formación.
+
+La posición horizontal aumenta progresivamente mediante:
+
+`startX + index * spacingX`
+
+Para determinar la posición vertical se utiliza el operador módulo (`%`).
+
+Si el índice del enemigo es par (`index % 2 === 0`), su posición vertical es `startY`.
+
+Si el índice es impar, su posición vertical se calcula como:
+
+`startY + spacingY`
+
+Esta alternancia entre dos posiciones verticales genera visualmente el patrón de zigzag.
+
+Esta formación se utiliza actualmente en la cuarta oleada del videojuego con enemigos de tipo `CircularEnemy`.
+
+### ColumnFormation
+
+La clase `ColumnFormation` hereda de `Formation` y organiza a los enemigos en una columna vertical.
+
+El método `arrange(x, startY, spacingY)` utiliza una misma posición horizontal `x` para todos los integrantes de la formación.
+
+La posición vertical de cada enemigo se calcula mediante:
+
+`startY + index * spacingY`
+
+De esta manera, cada enemigo se coloca debajo del anterior manteniendo una separación determinada por `spacingY`.
+
+A diferencia de una formación horizontal, en este caso la coordenada `x` permanece constante mientras la coordenada `y` aumenta progresivamente.
+
+Esta formación se utiliza actualmente en la quinta oleada del videojuego con enemigos de tipo `HeavyEnemy`.
+### SwarmFormation
+
+La clase `SwarmFormation` hereda de `Formation` y organiza a los enemigos en una distribución compacta de tipo enjambre.
+
+El método `arrange(centerX, centerY, spacingX, spacingY)` utiliza un arreglo de seis posiciones relativas que indican dónde debe colocarse cada integrante respecto al centro de la formación.
+
+Las posiciones utilizadas son:
+
+- `(0, 0)`
+- `(-1, 0)`
+- `(1, 0)`
+- `(-0.5, 1)`
+- `(0.5, 1)`
+- `(0, 2)`
+
+La posición final de cada enemigo se calcula multiplicando estos valores relativos por `spacingX` y `spacingY` y sumándolos a `centerX` y `centerY`.
+
+El operador módulo (`%`) permite reutilizar las posiciones definidas si la cantidad de enemigos supera el número de posiciones disponibles.
+
+Esta formación se utiliza actualmente en la sexta oleada del videojuego con enemigos de tipo `PursuerEnemy`.
+
 ### FormationManager
 
 `FormationManager` es el componente encargado de crear, almacenar, actualizar y reiniciar las formaciones de enemigos utilizadas por el videojuego.
@@ -606,3 +740,17 @@ El elemento `game-canvas` se muestra como un bloque y utiliza:
 - Borde de 1 píxel con color `#444444`.
 
 Aunque CSS adapta visualmente el Canvas al tamaño de la ventana, el tamaño interno definido en `index.html` es de `1280 × 720` píxeles.
+
+## Componentes no integrados actualmente
+
+### Target
+
+La clase `Target` hereda de `DamageableEntity` y representa un objetivo estático con un tamaño de 80 × 50 píxeles y una vida máxima de 3.
+
+Su posición inicial se calcula para quedar centrada horizontalmente en el Canvas y utiliza una posición vertical de `y = 80`.
+
+Su representación gráfica consiste en un rectángulo de color gris (`#4b4b4b`).
+
+Sin embargo, una búsqueda de referencias en el código actual muestra que `Target` no es importado ni utilizado por otros componentes del videojuego.
+
+Por esta razón, `Target` se documenta como una clase existente en el código, pero no como una mecánica integrada actualmente en la ejecución principal del juego.
