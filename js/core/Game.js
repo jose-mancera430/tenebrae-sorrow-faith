@@ -9,7 +9,11 @@ import { GameStateUI } from "./GameStateUI.js";
 import { WaveManager } from "./WaveManager.js";
 
 export class Game {
-    constructor(canvas, ctx) {
+    constructor(
+        canvas,
+        ctx,
+        gameSeed = 12345
+    ) {
         this.canvas = canvas;
         this.ctx = ctx;
 
@@ -29,7 +33,8 @@ export class Game {
         this.enemyManager =
             new EnemyManager();
 
-        this.gameSeed = 12345;
+        this.gameSeed =
+            gameSeed;
 
         this.patternSystem =
             new PatternSystem(

@@ -1,10 +1,57 @@
 import { Game } from "./core/Game.js";
 
-const canvas = document.getElementById("game-canvas");
-const ctx = canvas.getContext("2d");
+const canvas =
+    document.getElementById(
+        "game-canvas"
+    );
 
-console.log("TENEBRAE: núcleo del juego cargado");
+const ctx =
+    canvas.getContext("2d");
 
-const game = new Game(canvas, ctx);
+console.log(
+    "TENEBRAE: núcleo del juego cargado"
+);
 
-game.start();
+async function startGame() {
+    let gameSeed = 12345;
+
+    try {
+        const response =
+            await fetch(
+                "/api/daily-seed"
+            );
+
+        if (!response.ok) {
+            throw new Error(
+                "No se pudo obtener la seed diaria"
+            );
+        }
+
+        const data =
+            await response.json();
+
+        gameSeed =
+            data.seed;
+
+        console.log(
+            "Seed diaria recibida:",
+            gameSeed
+        );
+    } catch (error) {
+        console.warn(
+            "Usando seed de respaldo:",
+            gameSeed
+        );
+    }
+
+    const game =
+        new Game(
+            canvas,
+            ctx,
+            gameSeed
+        );
+
+    game.start();
+}
+
+startGame();
