@@ -266,66 +266,35 @@ export class EnemyManager {
         const formation =
             this.formationManager.createCircleFormation();
 
-        const enemy1 =
-            this.createTurretEnemy(
-                0,
-                0,
-                50,
-                50,
-                3
+        const enemyCount =
+            this.getRandomInteger(
+                5,
+                7
             );
 
-        const enemy2 =
-            this.createTurretEnemy(
-                0,
-                0,
-                50,
-                50,
-                3
-            );
+        console.log(
+            "OLEADA 3 - enemigos:",
+            enemyCount
+        );
 
-        const enemy3 =
-            this.createTurretEnemy(
-                0,
-                0,
-                50,
-                50,
-                3
-            );
+        for (
+            let i = 0;
+            i < enemyCount;
+            i++
+        ) {
+            const enemy =
+                this.createTurretEnemy(
+                    0,
+                    0,
+                    50,
+                    50,
+                    3
+                );
 
-        const enemy4 =
-            this.createTurretEnemy(
-                0,
-                0,
-                50,
-                50,
-                3
+            formation.addEnemy(
+                enemy
             );
-
-        const enemy5 =
-            this.createTurretEnemy(
-                0,
-                0,
-                50,
-                50,
-                3
-            );
-
-        const enemy6 =
-            this.createTurretEnemy(
-                0,
-                0,
-                50,
-                50,
-                3
-            );
-
-        formation.addEnemy(enemy1);
-        formation.addEnemy(enemy2);
-        formation.addEnemy(enemy3);
-        formation.addEnemy(enemy4);
-        formation.addEnemy(enemy5);
-        formation.addEnemy(enemy6);
+        }
 
         formation.arrange(
             canvas.width / 2,
@@ -338,66 +307,35 @@ export class EnemyManager {
         const formation =
             this.formationManager.createZigzagFormation();
 
-        const enemy1 =
-            this.createCircularEnemy(
-                0,
-                0,
-                50,
-                50,
-                3
+        const enemyCount =
+            this.getRandomInteger(
+                5,
+                7
             );
 
-        const enemy2 =
-            this.createCircularEnemy(
-                0,
-                0,
-                50,
-                50,
-                3
-            );
+        console.log(
+            "OLEADA 4 - enemigos:",
+            enemyCount
+        );
 
-        const enemy3 =
-            this.createCircularEnemy(
-                0,
-                0,
-                50,
-                50,
-                3
-            );
+        for (
+            let i = 0;
+            i < enemyCount;
+            i++
+        ) {
+            const enemy =
+                this.createCircularEnemy(
+                    0,
+                    0,
+                    50,
+                    50,
+                    3
+                );
 
-        const enemy4 =
-            this.createCircularEnemy(
-                0,
-                0,
-                50,
-                50,
-                3
+            formation.addEnemy(
+                enemy
             );
-
-        const enemy5 =
-            this.createCircularEnemy(
-                0,
-                0,
-                50,
-                50,
-                3
-            );
-
-        const enemy6 =
-            this.createCircularEnemy(
-                0,
-                0,
-                50,
-                50,
-                3
-            );
-
-        formation.addEnemy(enemy1);
-        formation.addEnemy(enemy2);
-        formation.addEnemy(enemy3);
-        formation.addEnemy(enemy4);
-        formation.addEnemy(enemy5);
-        formation.addEnemy(enemy6);
+        }
 
         formation.arrange(
             canvas.width * 0.20,
@@ -411,56 +349,35 @@ export class EnemyManager {
         const formation =
             this.formationManager.createColumnFormation();
 
-        const enemy1 =
-            this.createHeavyEnemy(
-                0,
-                0,
-                50,
-                50,
+        const enemyCount =
+            this.getRandomInteger(
+                4,
                 6
             );
 
-        const enemy2 =
-            this.createHeavyEnemy(
-                0,
-                0,
-                50,
-                50,
-                6
-            );
+        console.log(
+            "OLEADA 5 - enemigos:",
+            enemyCount
+        );
 
-        const enemy3 =
-            this.createHeavyEnemy(
-                0,
-                0,
-                50,
-                50,
-                6
-            );
+        for (
+            let i = 0;
+            i < enemyCount;
+            i++
+        ) {
+            const enemy =
+                this.createHeavyEnemy(
+                    0,
+                    0,
+                    50,
+                    50,
+                    6
+                );
 
-        const enemy4 =
-            this.createHeavyEnemy(
-                0,
-                0,
-                50,
-                50,
-                6
+            formation.addEnemy(
+                enemy
             );
-
-        const enemy5 =
-            this.createHeavyEnemy(
-                0,
-                0,
-                50,
-                50,
-                6
-            );
-
-        formation.addEnemy(enemy1);
-        formation.addEnemy(enemy2);
-        formation.addEnemy(enemy3);
-        formation.addEnemy(enemy4);
-        formation.addEnemy(enemy5);
+        }
 
         formation.arrange(
             canvas.width / 2 - 25,
@@ -473,66 +390,35 @@ export class EnemyManager {
         const formation =
             this.formationManager.createSwarmFormation();
 
-        const enemy1 =
-            this.createPursuerEnemy(
-                0,
-                0,
-                50,
-                50,
-                3
+        const enemyCount =
+            this.getRandomInteger(
+                5,
+                7
             );
 
-        const enemy2 =
-            this.createPursuerEnemy(
-                0,
-                0,
-                50,
-                50,
-                3
-            );
+        console.log(
+            "OLEADA 6 - enemigos:",
+            enemyCount
+        );
 
-        const enemy3 =
-            this.createPursuerEnemy(
-                0,
-                0,
-                50,
-                50,
-                3
-            );
+        for (
+            let i = 0;
+            i < enemyCount;
+            i++
+        ) {
+            const enemy =
+                this.createPursuerEnemy(
+                    0,
+                    0,
+                    50,
+                    50,
+                    3
+                );
 
-        const enemy4 =
-            this.createPursuerEnemy(
-                0,
-                0,
-                50,
-                50,
-                3
+            formation.addEnemy(
+                enemy
             );
-
-        const enemy5 =
-            this.createPursuerEnemy(
-                0,
-                0,
-                50,
-                50,
-                3
-            );
-
-        const enemy6 =
-            this.createPursuerEnemy(
-                0,
-                0,
-                50,
-                50,
-                3
-            );
-
-        formation.addEnemy(enemy1);
-        formation.addEnemy(enemy2);
-        formation.addEnemy(enemy3);
-        formation.addEnemy(enemy4);
-        formation.addEnemy(enemy5);
-        formation.addEnemy(enemy6);
+        }
 
         formation.arrange(
             canvas.width / 2,
