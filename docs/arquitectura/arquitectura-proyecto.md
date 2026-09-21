@@ -1,3 +1,4 @@
+
 # Arquitectura del proyecto — Tenebrae: Sorrow & Faith
 
 ## Objetivo
@@ -9,7 +10,6 @@ Su propósito es documentar la organización de los principales componentes del 
 La documentación se basa en la estructura y el código implementado actualmente en el proyecto. Los sistemas que todavía se encuentren en desarrollo o que no estén integrados completamente se indicarán de forma explícita.
 
  ## Estructura general del proyecto
-
 El proyecto está organizado en diferentes carpetas que separan las responsabilidades principales del videojuego.
 
 La estructura general utilizada actualmente es:
@@ -66,7 +66,8 @@ Entity
 │       ├── HeavyEnemy
 │       ├── HunterEnemy
 │       ├── PursuerEnemy
-│       └── TurretEnemy
+│       ├── TurretEnemy
+│       └── CircularEnemy
 ├── Projectile
 └── EnemyProjectile
 
@@ -148,6 +149,18 @@ Su velocidad de persecución es de 110.
 
 Para apuntar, calcula la dirección desde el centro de la torreta hasta el centro del jugador y utiliza el sistema de proyectiles enemigos para generar el disparo.
 
+### CircularEnemy
+
+`CircularEnemy` implementa un movimiento circular cuando deja de estar controlado por una formación.
+
+Al comenzar su movimiento individual, guarda su posición como centro de la órbita mediante `centerX` y `centerY`.
+
+El enemigo utiliza un radio de órbita de 70 y una velocidad angular de 1.5. En cada actualización incrementa su ángulo utilizando `deltaTime`.
+
+Su nueva posición se calcula mediante `Math.cos()` para el eje X y `Math.sin()` para el eje Y, generando un desplazamiento circular alrededor de su punto central.
+
+Mientras `inFormation` sea `true`, el enemigo no ejecuta este movimiento individual.
+
 ### Relación general
 
 Enemy
@@ -155,7 +168,8 @@ Enemy
 ├── HeavyEnemy → mayor resistencia y menor velocidad
 ├── HunterEnemy → seguimiento horizontal
 ├── PursuerEnemy → persecución en X e Y
-└── TurretEnemy → posición fija y disparo dirigido
+├── TurretEnemy → posición fija y disparo dirigido
+└── CircularEnemy → movimiento circular
 
 ## Sistema de formaciones
 
@@ -207,3 +221,229 @@ Actualmente, el método `createWave()` de `EnemyManager` contempla seis oleadas 
 Para crear una oleada, `EnemyManager` solicita al `FormationManager` la formación correspondiente. Después crea los enemigos, los agrega a la formación mediante `addEnemy()` y utiliza `arrange()` para establecer su distribución inicial.
 
 De esta manera, las formaciones `LineFormation`, `VFormation`, `CircleFormation`, `ZigzagFormation`, `ColumnFormation` y `SwarmFormation` se encuentran actualmente conectadas con el sistema de oleadas del proyecto.
+
+## Coordinación general del videojuego
+
+### Game
+
+La clase `Game` funciona como el componente principal encargado de coordinar los diferentes sistemas del videojuego.
+
+Durante su inicialización crea y mantiene las instancias principales de:
+
+- `InputManager`
+- `Player`
+- `ProjectilePool`
+- `EnemyProjectilePool`
+- `EnemyManager`
+- `PatternSystem`
+- `HUD`
+- `GameStateUI`
+- `WaveManager`
+
+El juego utiliza un `ProjectilePool` de 100 proyectiles para los disparos del jugador y un `EnemyProjectilePool` de 100 proyectiles para los disparos enemigos.
+
+`Game` también mantiene los estados `levelFinished` y `gameOver`, utilizados para determinar si el nivel terminó o si el jugador perdió la partida.
+
+El `WaveManager` se inicializa con un total de 6 oleadas. Al comenzar la partida, `Game` solicita a `EnemyManager` la creación de la oleada correspondiente a `currentWave`.
+
+### Ciclo de actualización del juego
+
+El método `update(deltaTime)` coordina la actualización de la lógica del videojuego durante cada ciclo de ejecución.
+
+Mientras la partida se encuentra activa, el proceso general se realiza en el siguiente orden:
+
+1. Se actualiza el estado y movimiento del jugador.
+2. Se procesa el disparo del jugador mediante `handlePlayerShooting()`.
+3. Se actualizan los proyectiles del jugador.
+4. Se actualizan los proyectiles enemigos.
+5. Se actualizan los enemigos mediante `EnemyManager`.
+6. Se comprueban las colisiones entre proyectiles del jugador y enemigos.
+7. Se comprueban las colisiones entre enemigos y el jugador.
+8. Se comprueban las colisiones entre proyectiles enemigos y el jugador.
+9. Se verifica si el jugador ha llegado al estado de Game Over.
+10. Se comprueba si la oleada actual ha terminado.
+
+Si `gameOver` o `levelFinished` están activos, la actualización normal de la partida se detiene. En estos estados, la tecla `R` permite ejecutar `restartGame()` para reiniciar la partida.
+
+### Control y avance de las oleadas
+
+`Game` utiliza `WaveManager` para controlar el progreso de las oleadas. Actualmente el juego está configurado con un máximo de 6 oleadas.
+
+El método `checkWaveFinished()` comprueba si todavía existen enemigos activos mediante `EnemyManager`.
+
+Cuando ya no quedan enemigos activos:
+
+1. La oleada actual se marca como terminada mediante `markWaveFinished()`.
+2. Se eliminan del administrador las referencias a enemigos inactivos.
+3. Se comprueba mediante `canAdvance()` si existe otra oleada.
+4. Si existe otra oleada, se ejecuta `startNextWave()`.
+5. Si ya no existen más oleadas, se ejecuta `finishLevel()`.
+
+`startNextWave()` utiliza `advanceWave()` para avanzar el contador de oleada. Después reinicia los proyectiles enemigos y solicita a `EnemyManager` la creación de la siguiente oleada.
+
+Al finalizar la sexta y última oleada, `finishLevel()` establece `levelFinished` en `true`. A partir de ese momento se detiene la lógica normal de la partida y `GameStateUI` muestra el estado de nivel terminado.
+
+### Reinicio de la partida
+
+Cuando el jugador se encuentra en estado de `gameOver` o `levelFinished`, puede presionar la tecla `R` para ejecutar el método `restartGame()`.
+
+Este método restablece los principales sistemas de la partida:
+
+1. `levelFinished` vuelve a `false`.
+2. `gameOver` vuelve a `false`.
+3. Se reinicia el jugador mediante `player.reset()`.
+4. Se reinicia `EnemyManager`.
+5. Se vuelve a establecer la semilla `gameSeed` en `EnemyManager`.
+6. Se reinicia el pool de proyectiles del jugador.
+7. Se reinicia el pool de proyectiles enemigos.
+8. Se vuelve a establecer la semilla en `PatternSystem`.
+9. Se reinicia `WaveManager`.
+10. Se crea nuevamente la primera oleada.
+
+De esta manera, la partida puede comenzar nuevamente desde su estado inicial sin necesidad de recargar la página.
+
+### Ciclo principal y renderizado
+
+El método `gameLoop(tiempoActual)` mantiene la ejecución continua del videojuego.
+
+En cada ciclo se calcula `deltaTime` utilizando el tiempo actual y el tiempo registrado en el ciclo anterior. El resultado se divide entre 1000 para trabajar el tiempo en segundos.
+
+Después se ejecutan dos procesos principales:
+
+1. `update(deltaTime)`: actualiza la lógica y el estado del videojuego.
+2. `render()`: dibuja en pantalla el estado actual de la partida.
+
+Al finalizar cada ciclo, `requestAnimationFrame()` solicita al navegador la ejecución del siguiente fotograma.
+
+El método `render()` limpia primero el Canvas mediante `clearRect()` y posteriormente dibuja los elementos principales del juego, incluyendo enemigos, jugador, proyectiles y HUD.
+
+El jugador solamente se renderiza mientras no se encuentre destruido.
+
+Además, dependiendo del estado de la partida, `GameStateUI` puede mostrar la pantalla de nivel terminado o la pantalla de Game Over.
+
+Finalmente, el método `start()` utiliza `requestAnimationFrame()` para iniciar el ciclo principal del videojuego.
+
+## Administración de oleadas
+
+### WaveManager
+
+La clase `WaveManager` es responsable de controlar el número de la oleada actual y determinar si todavía es posible avanzar a una nueva oleada.
+
+Internamente utiliza las siguientes propiedades:
+
+- `currentWave`: almacena el número de la oleada actual. Su valor inicial es 1.
+- `maxWaves`: establece la cantidad máxima de oleadas.
+- `waveFinished`: indica si la oleada actual ha terminado.
+
+El constructor de `WaveManager` utiliza 2 como valor predeterminado para `maxWaves`. Sin embargo, en la configuración actual del videojuego, la clase `Game` crea `WaveManager` con un máximo de 6 oleadas.
+
+El método `canAdvance()` comprueba si `currentWave` es menor que `maxWaves`.
+
+El método `advanceWave()` verifica primero si es posible avanzar. Si existen más oleadas, incrementa `currentWave`, establece `waveFinished` nuevamente en `false` y devuelve `true`. Si no es posible avanzar, devuelve `false`.
+
+El método `markWaveFinished()` establece `waveFinished` en `true`.
+
+Finalmente, `reset()` devuelve el administrador a su estado inicial, estableciendo `currentWave` en 1 y `waveFinished` en `false`.
+
+## Interfaz de información
+
+### HUD
+
+La clase `HUD` es responsable de mostrar durante la partida información relevante sobre el estado del jugador y el progreso del videojuego.
+
+El método `render()` recibe el contexto gráfico del Canvas, el jugador, la oleada actual, el número máximo de oleadas y la semilla utilizada por la partida.
+
+Actualmente el HUD muestra los siguientes datos:
+
+- **Oleada:** muestra la oleada actual y el total de oleadas.
+- **Vida:** muestra la vida actual del jugador y su vida máxima.
+- **Disparos:** muestra la cantidad de disparos realizados por el jugador.
+- **Impactos:** muestra la cantidad de proyectiles que han impactado a un enemigo.
+- **Precisión:** muestra el porcentaje de precisión obtenido mediante `player.getAccuracy()`, utilizando dos decimales.
+- **Enemigos destruidos:** muestra la cantidad total de enemigos eliminados por el jugador.
+- **Seed:** muestra la semilla utilizada durante la partida.
+
+La información se dibuja directamente sobre el Canvas mediante `fillText()`.
+
+### GameStateUI
+
+La clase `GameStateUI` es responsable de mostrar mensajes relacionados con los estados especiales de la partida.
+
+Actualmente administra dos estados visuales principales:
+
+#### Nivel terminado
+
+El método `renderLevelFinished()` muestra el mensaje:
+
+`NIVEL TERMINADO`
+
+Debajo del mensaje principal se muestra la instrucción:
+
+`Presiona R para reiniciar`
+
+#### Game Over
+
+El método `renderGameOver()` muestra el mensaje:
+
+`GAME OVER`
+
+También muestra la instrucción:
+
+`Presiona R para reiniciar`
+
+Ambas interfaces se dibujan directamente sobre el Canvas mediante `fillText()` y colocan los mensajes en la zona central de la pantalla.
+
+La clase `Game` determina cuándo debe mostrarse cada interfaz utilizando los estados `levelFinished` y `gameOver`.
+
+## Sistema de patrones de disparo
+
+### PatternSystem
+
+La clase `PatternSystem` administra las configuraciones de diferentes patrones de disparo utilizados por los enemigos.
+
+Al crearse, recibe una semilla y genera una instancia de `SeededRandom`. Posteriormente registra los patrones predeterminados mediante `registerDefaultPatterns()`.
+
+Actualmente se encuentran registrados los siguientes patrones:
+
+- `aimed-single`: disparo dirigido de un proyectil.
+- `radial-8`: patrón radial de 8 proyectiles.
+- `spiral-8`: configuración radial de 8 proyectiles con rotación.
+- `cross-4`: patrón radial de 4 proyectiles.
+- `burst-5`: ráfaga de 5 proyectiles distribuida dentro de un ángulo determinado.
+- `wave-5`: patrón de 5 proyectiles cuya dirección incorpora una variación basada en una función seno.
+- `random-5`: patrón de 5 proyectiles con variaciones de dirección generadas mediante `SeededRandom`.
+- `rotating-6`: patrón de 6 proyectiles con distribución radial y rotación.
+- `combo-aimed-radial`: configuración que combina los patrones `aimed-single` y `radial-8`.
+
+El método `registerPattern()` permite almacenar una configuración utilizando un nombre como identificador.
+
+`getPattern()` permite obtener una configuración registrada y `hasPattern()` permite comprobar si un patrón existe.
+
+La clase también contiene métodos para calcular las velocidades de diferentes tipos de patrones:
+
+- `calculateRadialVelocities()`
+- `calculateBurstVelocities()`
+- `calculateWaveVelocities()`
+- `calculateRandomVelocities()`
+
+Estos métodos utilizan cálculos trigonométricos para obtener los componentes `velocityX` y `velocityY` de los proyectiles.
+
+Finalmente, `setSeed()` permite restablecer la semilla utilizada por el generador pseudoaleatorio y `getSeed()` permite consultar su valor actual.
+
+### SeededRandom
+
+La clase `SeededRandom` implementa un generador de números pseudoaleatorios basado en una semilla.
+
+El constructor recibe una semilla inicial y la convierte a un entero sin signo de 32 bits mediante el operador `>>> 0`.
+
+El método `setSeed()` permite establecer nuevamente la semilla del generador.
+
+El método `next()` actualiza el estado interno mediante la siguiente operación:
+
+`seed = (seed * 1664525 + 1013904223) >>> 0`
+
+Después divide el resultado entre `4294967296` para obtener un valor pseudoaleatorio dentro del intervalo de 0 hasta un valor menor que 1.
+
+Este sistema permite obtener secuencias reproducibles: si se utiliza la misma semilla inicial y se realizan las llamadas en el mismo orden, se genera la misma secuencia de valores.
+
+`PatternSystem` utiliza esta clase en el patrón `random-5`, evitando depender directamente de `Math.random()` para calcular la variación aleatoria de los disparos.
