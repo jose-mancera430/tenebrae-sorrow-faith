@@ -25,7 +25,13 @@ export class TurretEnemy extends Enemy {
         this.fireTimer = 0;
 
         this.patternName =
-            "aimed-single";
+            "combo-aimed-radial";
+
+        this.currentRotation = 0;
+
+        this.waveOffset = 0;
+
+        this.comboIndex = 0;
     }
 
     update(
@@ -70,12 +76,12 @@ export class TurretEnemy extends Enemy {
 
                 if (
                     this.fireTimer <= 0 &&
-                    enemyProjectilePool &&
-                    player
+                    enemyProjectilePool
                 ) {
-                    this.fireAimedShot(
+                    this.firePattern(
                         player,
                         enemyProjectilePool,
+                        patternSystem,
                         pattern
                     );
 
@@ -93,11 +99,77 @@ export class TurretEnemy extends Enemy {
         }
     }
 
+    firePattern(
+        player,
+        enemyProjectilePool,
+        patternSystem,
+        pattern
+    ) {
+        if (pattern.type === "aimed") {
+            this.fireAimedShot(
+                player,
+                enemyProjectilePool,
+                pattern
+            );
+        }
+
+        if (
+            pattern.type === "radial" ||
+            pattern.type === "rotating"
+        ) {
+            this.fireRadialShot(
+                enemyProjectilePool,
+                patternSystem,
+                pattern
+            );
+        }
+
+        if (pattern.type === "burst") {
+            this.fireBurstShot(
+                player,
+                enemyProjectilePool,
+                patternSystem,
+                pattern
+            );
+        }
+
+        if (pattern.type === "wave") {
+            this.fireWaveShot(
+                player,
+                enemyProjectilePool,
+                patternSystem,
+                pattern
+            );
+        }
+
+        if (pattern.type === "random") {
+            this.fireRandomShot(
+                player,
+                enemyProjectilePool,
+                patternSystem,
+                pattern
+            );
+        }
+
+        if (pattern.type === "combo") {
+            this.fireComboShot(
+                player,
+                enemyProjectilePool,
+                patternSystem,
+                pattern
+            );
+        }
+    }
+
     fireAimedShot(
         player,
         enemyProjectilePool,
         pattern
     ) {
+        if (!player) {
+            return;
+        }
+
         const startX =
             this.x +
             this.width / 2 -
@@ -155,5 +227,290 @@ export class TurretEnemy extends Enemy {
             velocityX,
             velocityY
         );
+    }
+
+    fireRadialShot(
+        enemyProjectilePool,
+        patternSystem,
+        pattern
+    ) {
+        const rotatedPattern = {
+            ...pattern,
+            rotation:
+                this.currentRotation
+        };
+
+        const velocities =
+            patternSystem.calculateRadialVelocities(
+                rotatedPattern
+            );
+
+        const startX =
+            this.x +
+            this.width / 2 -
+            5;
+
+        const startY =
+            this.y +
+            this.height / 2 -
+            9;
+
+        for (const velocity of velocities) {
+            enemyProjectilePool.getProjectile(
+                startX,
+                startY,
+                velocity.velocityX,
+                velocity.velocityY
+            );
+        }
+
+        this.currentRotation +=
+            pattern.rotation;
+
+        if (this.currentRotation >= 360) {
+            this.currentRotation -= 360;
+        }
+    }
+
+    fireBurstShot(
+        player,
+        enemyProjectilePool,
+        patternSystem,
+        pattern
+    ) {
+        if (!player) {
+            return;
+        }
+
+        const startX =
+            this.x +
+            this.width / 2 -
+            5;
+
+        const startY =
+            this.y +
+            this.height;
+
+        const turretCenterX =
+            this.x +
+            this.width / 2;
+
+        const turretCenterY =
+            this.y +
+            this.height / 2;
+
+        const playerCenterX =
+            player.x +
+            player.width / 2;
+
+        const playerCenterY =
+            player.y +
+            player.height / 2;
+
+        const directionX =
+            playerCenterX -
+            turretCenterX;
+
+        const directionY =
+            playerCenterY -
+            turretCenterY;
+
+        const baseAngle =
+            Math.atan2(
+                directionY,
+                directionX
+            );
+
+        const velocities =
+            patternSystem.calculateBurstVelocities(
+                pattern,
+                baseAngle
+            );
+
+        for (const velocity of velocities) {
+            enemyProjectilePool.getProjectile(
+                startX,
+                startY,
+                velocity.velocityX,
+                velocity.velocityY
+            );
+        }
+    }
+
+    fireWaveShot(
+        player,
+        enemyProjectilePool,
+        patternSystem,
+        pattern
+    ) {
+        if (!player) {
+            return;
+        }
+
+        const startX =
+            this.x +
+            this.width / 2 -
+            5;
+
+        const startY =
+            this.y +
+            this.height;
+
+        const turretCenterX =
+            this.x +
+            this.width / 2;
+
+        const turretCenterY =
+            this.y +
+            this.height / 2;
+
+        const playerCenterX =
+            player.x +
+            player.width / 2;
+
+        const playerCenterY =
+            player.y +
+            player.height / 2;
+
+        const directionX =
+            playerCenterX -
+            turretCenterX;
+
+        const directionY =
+            playerCenterY -
+            turretCenterY;
+
+        const baseAngle =
+            Math.atan2(
+                directionY,
+                directionX
+            );
+
+        const velocities =
+            patternSystem.calculateWaveVelocities(
+                pattern,
+                baseAngle,
+                this.waveOffset
+            );
+
+        for (const velocity of velocities) {
+            enemyProjectilePool.getProjectile(
+                startX,
+                startY,
+                velocity.velocityX,
+                velocity.velocityY
+            );
+        }
+
+        this.waveOffset += 0.8;
+    }
+
+    fireRandomShot(
+        player,
+        enemyProjectilePool,
+        patternSystem,
+        pattern
+    ) {
+        if (!player) {
+            return;
+        }
+
+        const startX =
+            this.x +
+            this.width / 2 -
+            5;
+
+        const startY =
+            this.y +
+            this.height;
+
+        const turretCenterX =
+            this.x +
+            this.width / 2;
+
+        const turretCenterY =
+            this.y +
+            this.height / 2;
+
+        const playerCenterX =
+            player.x +
+            player.width / 2;
+
+        const playerCenterY =
+            player.y +
+            player.height / 2;
+
+        const directionX =
+            playerCenterX -
+            turretCenterX;
+
+        const directionY =
+            playerCenterY -
+            turretCenterY;
+
+        const baseAngle =
+            Math.atan2(
+                directionY,
+                directionX
+            );
+
+        const velocities =
+            patternSystem.calculateRandomVelocities(
+                pattern,
+                baseAngle
+            );
+
+        for (const velocity of velocities) {
+            enemyProjectilePool.getProjectile(
+                startX,
+                startY,
+                velocity.velocityX,
+                velocity.velocityY
+            );
+        }
+    }
+
+    fireComboShot(
+        player,
+        enemyProjectilePool,
+        patternSystem,
+        pattern
+    ) {
+        if (
+            !pattern.patterns ||
+            pattern.patterns.length === 0
+        ) {
+            return;
+        }
+
+        const selectedPatternName =
+            pattern.patterns[
+                this.comboIndex
+            ];
+
+        const selectedPattern =
+            patternSystem.getPattern(
+                selectedPatternName
+            );
+
+        if (!selectedPattern) {
+            return;
+        }
+
+        this.firePattern(
+            player,
+            enemyProjectilePool,
+            patternSystem,
+            selectedPattern
+        );
+
+        this.comboIndex++;
+
+        if (
+            this.comboIndex >=
+            pattern.patterns.length
+        ) {
+            this.comboIndex = 0;
+        }
     }
 }
