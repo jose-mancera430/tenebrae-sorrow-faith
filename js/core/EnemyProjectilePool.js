@@ -4,9 +4,22 @@ export class EnemyProjectilePool {
     constructor(size = 100) {
         this.projectiles = [];
 
-        for (let i = 0; i < size; i++) {
+        /*
+         * Multiplicador global de
+         * velocidad de proyectiles.
+         */
+        this.speedMultiplier = 1;
+
+        for (
+            let i = 0;
+            i < size;
+            i++
+        ) {
             const projectile =
-                new EnemyProjectile(0, 0);
+                new EnemyProjectile(
+                    0,
+                    0
+                );
 
             projectile.deactivate();
 
@@ -16,19 +29,50 @@ export class EnemyProjectilePool {
         }
     }
 
+    setSpeedMultiplier(
+        multiplier = 1
+    ) {
+        this.speedMultiplier =
+            Math.max(
+                1,
+                multiplier
+            );
+    }
+
     getProjectile(
         x,
         y,
         velocityX = 0,
         velocityY = 260
     ) {
-        for (const projectile of this.projectiles) {
-            if (!projectile.active) {
+        for (
+            const projectile
+            of this.projectiles
+        ) {
+            if (
+                !projectile.active
+            ) {
+                /*
+                 * Aplicamos dificultad
+                 * justo cuando el proyectil
+                 * sale del pool.
+                 *
+                 * Así todos los patrones
+                 * siguen funcionando igual.
+                 */
+                const finalVelocityX =
+                    velocityX *
+                    this.speedMultiplier;
+
+                const finalVelocityY =
+                    velocityY *
+                    this.speedMultiplier;
+
                 projectile.activate(
                     x,
                     y,
-                    velocityX,
-                    velocityY
+                    finalVelocityX,
+                    finalVelocityY
                 );
 
                 return projectile;
@@ -39,7 +83,10 @@ export class EnemyProjectilePool {
     }
 
     reset() {
-        for (const projectile of this.projectiles) {
+        for (
+            const projectile
+            of this.projectiles
+        ) {
             projectile.deactivate();
         }
     }
@@ -48,8 +95,13 @@ export class EnemyProjectilePool {
         deltaTime,
         canvas
     ) {
-        for (const projectile of this.projectiles) {
-            if (!projectile.active) {
+        for (
+            const projectile
+            of this.projectiles
+        ) {
+            if (
+                !projectile.active
+            ) {
                 continue;
             }
 
@@ -61,11 +113,13 @@ export class EnemyProjectilePool {
                 projectile.y >
                     canvas.height ||
                 projectile.y +
-                    projectile.height < 0 ||
+                    projectile.height <
+                    0 ||
                 projectile.x >
                     canvas.width ||
                 projectile.x +
-                    projectile.width < 0
+                    projectile.width <
+                    0
             ) {
                 projectile.deactivate();
             }
@@ -73,12 +127,19 @@ export class EnemyProjectilePool {
     }
 
     render(ctx) {
-        for (const projectile of this.projectiles) {
-            if (!projectile.active) {
+        for (
+            const projectile
+            of this.projectiles
+        ) {
+            if (
+                !projectile.active
+            ) {
                 continue;
             }
 
-            projectile.render(ctx);
+            projectile.render(
+                ctx
+            );
         }
     }
 }

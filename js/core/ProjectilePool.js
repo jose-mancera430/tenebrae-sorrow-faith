@@ -1,60 +1,163 @@
-import { Projectile } from "./Projectile.js";
+import {
+    Projectile
+} from "./Projectile.js";
 
 export class ProjectilePool {
-    constructor(size = 100) {
+    constructor(
+        size = 100
+    ) {
         this.projectiles = [];
 
-        for (let i = 0; i < size; i++) {
-            const projectile = new Projectile(0, 0);
 
-            projectile.deactivate();
-
-            this.projectiles.push(projectile);
+        for (
+            let i = 0;
+            i < size;
+            i++
+        ) {
+            this.projectiles.push(
+                new Projectile()
+            );
         }
     }
 
-    getProjectile(x, y) {
-        for (const projectile of this.projectiles) {
-            if (!projectile.active) {
-                projectile.activate(x, y);
 
-                return projectile;
+    /*
+     * =====================================
+     * OBTENER PROYECTIL
+     * =====================================
+     */
+    getProjectile(
+        x,
+        y,
+        options = {}
+    ) {
+        for (
+            const projectile
+            of this.projectiles
+        ) {
+            if (
+                projectile.active
+            ) {
+                continue;
             }
+
+
+            projectile.activate(
+                x,
+                y,
+                options
+            );
+
+
+            /*
+             * =================================
+             * PIERCING
+             * =================================
+             *
+             * Se reinicia SIEMPRE al reutilizar
+             * un proyectil del pool.
+             *
+             * Esto evita que un proyectil viejo
+             * conserve el estado del anterior.
+             */
+            projectile.piercing =
+                Boolean(
+                    options.piercing
+                );
+
+
+            /*
+             * Entidades que este proyectil ya
+             * golpeó.
+             *
+             * Impide dañar al mismo enemigo/boss
+             * en cada frame mientras la bala
+             * permanece superpuesta.
+             */
+            projectile.hitTargets =
+                new Set();
+
+
+            return projectile;
         }
 
+
+        /*
+         * Pool lleno.
+         */
         return null;
     }
 
-    reset() {
-        for (const projectile of this.projectiles) {
-            projectile.deactivate();
-        }
-    }
 
-    update(deltaTime) {
-        for (const projectile of this.projectiles) {
-            if (!projectile.active) {
-                continue;
-            }
-
-            projectile.update(deltaTime);
-
+    /*
+     * =====================================
+     * UPDATE
+     * =====================================
+     */
+    update(
+        deltaTime
+    ) {
+        for (
+            const projectile
+            of this.projectiles
+        ) {
             if (
-                projectile.y +
-                projectile.height < 0
+                !projectile.active
             ) {
-                projectile.deactivate();
-            }
-        }
-    }
-
-    render(ctx) {
-        for (const projectile of this.projectiles) {
-            if (!projectile.active) {
                 continue;
             }
 
-            projectile.render(ctx);
+
+            projectile.update(
+                deltaTime
+            );
+        }
+    }
+
+
+    /*
+     * =====================================
+     * RENDER
+     * =====================================
+     */
+    render(
+        ctx
+    ) {
+        for (
+            const projectile
+            of this.projectiles
+        ) {
+            if (
+                !projectile.active
+            ) {
+                continue;
+            }
+
+
+            projectile.render(
+                ctx
+            );
+        }
+    }
+
+
+    /*
+     * =====================================
+     * RESET
+     * =====================================
+     */
+    reset() {
+        for (
+            const projectile
+            of this.projectiles
+        ) {
+            projectile.deactivate();
+
+            projectile.piercing =
+                false;
+
+            projectile.hitTargets =
+                new Set();
         }
     }
 }

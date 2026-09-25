@@ -22,7 +22,11 @@ export class TurretEnemy extends Enemy {
 
         this.stopped = false;
 
-        this.fireTimer = 0;
+        /*
+         * No dispara inmediatamente al detenerse.
+         */
+        this.fireTimer =
+            1.60;
 
         this.patternName =
             "combo-aimed-radial";
@@ -85,8 +89,16 @@ export class TurretEnemy extends Enemy {
                         pattern
                     );
 
+                    /*
+                     * Las torretas siguen siendo peligrosas,
+                     * pero dejan tiempo real para esquivar.
+                     */
                     this.fireTimer =
-                        pattern.interval / 1000;
+                        (
+                            pattern.interval /
+                            1000
+                        ) *
+                        1.85;
                 }
             }
         }

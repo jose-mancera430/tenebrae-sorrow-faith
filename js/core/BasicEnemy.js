@@ -6,7 +6,8 @@ export class BasicEnemy extends Enemy {
         y,
         width,
         height,
-        maxHealth
+        maxHealth,
+        sprite = null
     ) {
         super(
             x,
@@ -19,6 +20,11 @@ export class BasicEnemy extends Enemy {
         this.type = "basic";
 
         this.speed = 100;
+
+        this.sprite = sprite;
+
+        this.renderWidth = 70;
+        this.renderHeight = 90;
     }
 
     update(
@@ -41,5 +47,34 @@ export class BasicEnemy extends Enemy {
         if (this.y > canvas.height) {
             this.deactivate();
         }
+    }
+
+    render(ctx) {
+        if (
+            this.sprite &&
+            this.sprite.complete
+        ) {
+            const drawX =
+                this.x +
+                this.width / 2 -
+                this.renderWidth / 2;
+
+            const drawY =
+                this.y +
+                this.height / 2 -
+                this.renderHeight / 2;
+
+            ctx.drawImage(
+                this.sprite,
+                drawX,
+                drawY,
+                this.renderWidth,
+                this.renderHeight
+            );
+
+            return;
+        }
+
+        super.render(ctx);
     }
 }

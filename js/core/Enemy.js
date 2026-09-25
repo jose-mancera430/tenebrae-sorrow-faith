@@ -16,29 +16,55 @@ export class Enemy extends DamageableEntity {
             maxHealth
         );
 
-        // Velocidad base provisional
+        // Velocidad base
         this.speed = 100;
 
-        // Indica si el enemigo está siendo controlado por una formación
+        // Control de formaciones
         this.inFormation = false;
+
+        // Sprite visual
+        this.sprite = null;
+
+        // Tamaño visual independiente
+        // de la hitbox
+        this.renderWidth = 70;
+        this.renderHeight = 90;
     }
 
-    update(deltaTime, canvas) {
+    setSprite(
+        sprite,
+        renderWidth = 70,
+        renderHeight = 90
+    ) {
+        this.sprite = sprite;
+
+        this.renderWidth =
+            renderWidth;
+
+        this.renderHeight =
+            renderHeight;
+    }
+
+    update(
+        deltaTime,
+        canvas
+    ) {
         if (!this.active) {
             return;
         }
 
-        // Mientras esté dentro de una formación,
-        // su movimiento individual queda detenido
         if (this.inFormation) {
             return;
         }
 
-        // Movimiento provisional individual hacia abajo
-        this.y += this.speed * deltaTime;
+        this.y +=
+            this.speed *
+            deltaTime;
 
-        // Desactivar al salir completamente del Canvas
-        if (this.y > canvas.height) {
+        if (
+            this.y >
+            canvas.height
+        ) {
             this.deactivate();
         }
     }
@@ -48,7 +74,37 @@ export class Enemy extends DamageableEntity {
             return;
         }
 
-        ctx.fillStyle = "#5a189a";
+        // Si existe sprite,
+        // dibujamos la imagen
+        if (
+            this.sprite &&
+            this.sprite.complete
+        ) {
+            const drawX =
+                this.x +
+                this.width / 2 -
+                this.renderWidth / 2;
+
+            const drawY =
+                this.y +
+                this.height / 2 -
+                this.renderHeight / 2;
+
+            ctx.drawImage(
+                this.sprite,
+                drawX,
+                drawY,
+                this.renderWidth,
+                this.renderHeight
+            );
+
+            return;
+        }
+
+        // Respaldo provisional
+        // si el sprite no existe
+        ctx.fillStyle =
+            "#5a189a";
 
         ctx.fillRect(
             this.x,
