@@ -801,3 +801,657 @@ Su representación gráfica consiste en un rectángulo de color gris (`#4b4b4b`)
 Sin embargo, una búsqueda de referencias en el código actual muestra que `Target` no es importado ni utilizado por otros componentes del videojuego.
 
 Por esta razón, `Target` se documenta como una clase existente en el código, pero no como una mecánica integrada actualmente en la ejecución principal del juego.
+
+
+---
+
+# Arquitectura de la versión final
+
+## 1. Descripción general
+
+La versión final de *Tenebrae: Sorrow & Faith* utiliza una arquitectura modular orientada a objetos desarrollada principalmente con JavaScript.
+
+La lógica del videojuego se encuentra dividida en diferentes clases y administradores especializados. Esta separación permite que sistemas como el jugador, enemigos, jefes, niveles, oleadas, puntuación, combo, Fervor, proyectiles, recursos gráficos, audio y power-ups puedan mantenerse de forma organizada.
+
+El archivo `Game.js` funciona como uno de los componentes centrales de la ejecución del videojuego y se apoya en diferentes administradores y entidades ubicados dentro de `js/core/`.
+
+La aplicación también incorpora un servidor desarrollado con Node.js mediante el archivo:
+
+`server/server.cjs`
+
+Este servidor permite ejecutar el proyecto mediante un entorno local y acceder al videojuego desde el navegador.
+
+---
+
+## 2. Estructura general
+
+La arquitectura puede dividirse conceptualmente en las siguientes capas:
+
+1. Interfaz y presentación.
+2. Control principal del videojuego.
+3. Entidades.
+4. Sistemas de combate.
+5. Enemigos y formaciones.
+6. Jefes.
+7. Progresión.
+8. Recursos multimedia.
+9. Servidor Node.js.
+
+El flujo general puede representarse de la siguiente manera:
+
+Usuario
+↓
+Navegador
+↓
+index.html
+↓
+JavaScript / main.js
+↓
+Game.js
+↓
+Sistemas y administradores
+↓
+Entidades, niveles, enemigos, jefes y recursos
+↓
+Canvas / interfaz visual
+
+De forma paralela:
+
+Node.js
+↓
+server/server.cjs
+↓
+Servidor local
+↓
+http://localhost:3000
+
+---
+
+## 3. Núcleo del videojuego
+
+### Game.js
+
+`Game.js` forma parte central de la arquitectura del proyecto.
+
+Se encarga de coordinar los diferentes elementos que intervienen durante una partida y trabaja en conjunto con los administradores especializados del videojuego.
+
+Entre los sistemas relacionados se encuentran:
+
+- jugador;
+- enemigos;
+- oleadas;
+- niveles;
+- jefes;
+- proyectiles;
+- colisiones;
+- puntuación;
+- combo;
+- Fervor;
+- power-ups;
+- audio;
+- fondos;
+- efectos;
+- interfaz.
+
+La división de estas responsabilidades en diferentes archivos evita concentrar toda la implementación en una sola clase.
+
+---
+
+## 4. Sistema de entidades
+
+### Entity.js
+
+Funciona como una base para elementos que existen dentro del espacio del videojuego.
+
+### DamageableEntity.js
+
+Representa entidades capaces de recibir daño y permite reutilizar comportamiento relacionado con vida, daño y destrucción.
+
+Este tipo de organización facilita compartir comportamiento entre diferentes elementos del juego.
+
+---
+
+## 5. Jugador
+
+### Player.js
+
+Contiene la lógica principal relacionada con el jugador.
+
+Durante las pruebas de la versión final se comprobó que el jugador puede:
+
+- desplazarse utilizando W, A, S y D;
+- disparar utilizando SHIFT;
+- recibir daño;
+- perder vida;
+- utilizar Fervor;
+- recoger power-ups;
+- interactuar con enemigos y proyectiles.
+
+### CharacterManager.js
+
+Forma parte del sistema utilizado para administrar los personajes o variantes disponibles en el videojuego.
+
+Los recursos gráficos finales incluyen:
+
+- Apóstol;
+- Relicario;
+- Velo.
+
+Además existen clases especializadas relacionadas con sus habilidades:
+
+- `ApostolAbility.js`
+- `RelicarioAbilityController.js`
+- `RelicarioSpecial.js`
+- `VeloAbility.js`
+
+---
+
+## 6. Sistema de Fervor
+
+### FervorManager.js
+
+El sistema de Fervor administra esta mecánica especial durante la partida.
+
+En las pruebas funcionales se comprobó que el Fervor se acumula durante el combate. El HUD permite visualizar una capacidad máxima de 200 y cuatro segmentos identificados como I, II, III y IV.
+
+Durante la prueba se observó que, después de acumular Fervor, la tecla E permite activar su utilización y modificar la capacidad ofensiva del jugador, incluyendo un incremento en la cantidad de disparos.
+
+El HUD muestra además beneficios pasivos asociados con los diferentes niveles de Fervor, como:
+
+- I — Disparo doble.
+- II — Aumento de velocidad.
+- III — Disparo triple.
+- IV — Perforación.
+
+---
+
+## 7. Proyectiles
+
+El sistema de disparos está dividido entre proyectiles del jugador y proyectiles enemigos.
+
+### Projectile.js
+
+Representa los proyectiles utilizados por el jugador.
+
+### ProjectilePool.js
+
+Administra la reutilización de los proyectiles del jugador.
+
+### EnemyProjectile.js
+
+Representa proyectiles generados por los enemigos.
+
+### EnemyProjectilePool.js
+
+Administra la reutilización de proyectiles enemigos.
+
+Durante las pruebas se comprobó que los disparos del jugador detectan impactos contra los enemigos, producen daño y permiten eliminarlos.
+
+---
+
+## 8. Enemigos
+
+El proyecto incorpora una estructura con diferentes clases de enemigos.
+
+Entre los archivos identificados se encuentran:
+
+- `Enemy.js`
+- `BasicEnemy.js`
+- `CircularEnemy.js`
+- `HeavyEnemy.js`
+- `HunterEnemy.js`
+- `PursuerEnemy.js`
+- `TurretEnemy.js`
+
+### EnemyManager.js
+
+Centraliza parte de la administración de enemigos durante la partida.
+
+La existencia de clases especializadas permite utilizar diferentes comportamientos y características sin colocar toda la lógica de los enemigos en una sola clase.
+
+---
+
+## 9. Formaciones de enemigos
+
+La versión final incorpora un sistema específico de formaciones.
+
+Los archivos relacionados son:
+
+- `Formation.js`
+- `FormationManager.js`
+- `CircleFormation.js`
+- `ColumnFormation.js`
+- `LineFormation.js`
+- `SwarmFormation.js`
+- `VFormation.js`
+- `ZigzagFormation.js`
+
+Estas clases permiten organizar grupos de enemigos utilizando distintos patrones de aparición y movimiento.
+
+### PatternSystem.js
+
+Forma parte del sistema relacionado con patrones utilizados durante el comportamiento del videojuego.
+
+### SeededRandom.js
+
+Forma parte del sistema de generación controlada utilizado por la lógica del juego.
+
+---
+
+## 10. Sistema de oleadas
+
+### WaveManager.js
+
+Administra la progresión de las oleadas de enemigos.
+
+Durante las pruebas funcionales se observó que cada nivel presenta un indicador de oleada con un total de seis:
+
+`OLEADA 1/6` hasta `OLEADA 6/6`.
+
+Este sistema permite estructurar progresivamente los enfrentamientos antes de completar un nivel.
+
+---
+
+## 11. Sistema de jefes
+
+La arquitectura incorpora una clase general y un administrador para los jefes.
+
+### Boss.js
+
+Proporciona la estructura relacionada con los enemigos de tipo jefe.
+
+### BossManager.js
+
+Administra la participación de los jefes dentro del videojuego.
+
+La versión final contiene las siguientes clases específicas:
+
+- `BestiaSieteCampanas.js`
+- `CultoLlaga.js`
+- `MilagroNegro.js`
+- `ObispoIncorrupto.js`
+
+Durante las pruebas se comprobó directamente la aparición de **El Obispo Incorrupto** en el Nivel 2, Oleada 6/6.
+
+El combate muestra:
+
+- nombre del jefe;
+- fase actual;
+- barra de vida;
+- ataques durante el enfrentamiento.
+
+---
+
+## 12. Sistema de niveles
+
+### LevelManager.js
+
+Administra la progresión de los niveles del videojuego.
+
+La versión final presenta ocho niveles, identificados en el HUD mediante:
+
+`NIVEL 1/8` hasta `NIVEL 8/8`.
+
+Durante las pruebas se completó el Nivel 1. Al finalizarlo, el juego muestra una pantalla de resultados y solicita al jugador presionar ENTER para continuar al Nivel 2.
+
+Por lo tanto, el cambio de nivel no ocurre inmediatamente: existe una pantalla intermedia de resultados antes de continuar.
+
+---
+
+## 13. Sistema de dificultad
+
+### DifficultyManager.js
+
+Forma parte de la arquitectura utilizada para administrar aspectos relacionados con la dificultad del videojuego.
+
+Su separación en una clase específica permite mantener este sistema independiente de otros componentes principales.
+
+---
+
+## 14. Sistema de puntuación
+
+### ScoreManager.js
+
+Administra la puntuación obtenida durante la partida.
+
+Durante las pruebas se comprobó que el valor mostrado en `PUNTOS` aumenta durante el combate conforme se eliminan enemigos.
+
+El HUD también presenta estadísticas como:
+
+- bajas;
+- disparos;
+- impactos;
+- precisión.
+
+Esto permite proporcionar al jugador información sobre su rendimiento durante la partida.
+
+---
+
+## 15. Sistema de combo
+
+### ComboManager.js
+
+Administra el multiplicador de combo.
+
+Durante las pruebas se observaron valores como:
+
+- COMBO x1;
+- COMBO x4;
+- COMBO x5.
+
+Se comprobó que el multiplicador puede aumentar al realizar eliminaciones consecutivas.
+
+---
+
+## 16. Sistema de power-ups
+
+El sistema utiliza:
+
+- `PowerUpItem.js`
+- `PowerUpManager.js`
+
+`PowerUpItem.js` representa los elementos recogibles, mientras que `PowerUpManager.js` participa en su administración durante la partida.
+
+Durante las pruebas se confirmó que los power-ups aparecen, pueden recogerse y producen efectos durante el juego.
+
+---
+
+## 17. Efectos y habilidades
+
+### EffectManager.js
+
+Administra efectos utilizados durante diferentes eventos del videojuego.
+
+También existen clases especializadas relacionadas con habilidades y efectos:
+
+- `AshImpactAbility.js`
+- `BellRumbleAbility.js`
+- `BronzeBlocksAbility.js`
+- `ApostolAbility.js`
+- `VeloAbility.js`
+- `RelicarioAbilityController.js`
+- `RelicarioSpecial.js`
+
+Esta separación permite mantener las habilidades especiales fuera de la lógica general de `Game.js`.
+
+---
+
+## 18. Recursos gráficos
+
+### AssetManager.js
+
+Forma parte del sistema encargado de administrar los recursos utilizados por el videojuego.
+
+Los recursos visuales se almacenan principalmente dentro de:
+
+`assets/`
+
+La versión final contiene imágenes PNG independientes para:
+
+- jugador;
+- enemigos;
+- jefes;
+- escenarios.
+
+Esta separación permite mantener los archivos multimedia independientes del código JavaScript.
+
+---
+
+## 19. Fondos y escenarios
+
+Los componentes relacionados con los escenarios incluyen:
+
+- `BackgroundManager.js`
+- `ParallaxBackground.js`
+
+La versión final dispone de ocho fondos principales, uno para cada nivel.
+
+Los escenarios permiten diferenciar visualmente las diferentes etapas de la partida y forman parte de la ambientación de *Tenebrae: Sorrow & Faith*.
+
+---
+
+## 20. Sistema de audio
+
+### AudioManager.js
+
+Centraliza la administración del audio.
+
+El proyecto dispone de música para:
+
+- menú;
+- partida;
+- enfrentamientos contra jefes.
+
+También incluye efectos para:
+
+- disparos;
+- impactos;
+- daño del jugador;
+- habilidades;
+- disparos asociados con diferentes personajes.
+
+Durante las pruebas se confirmó que la música y los efectos de sonido funcionan durante la ejecución del videojuego.
+
+---
+
+## 21. Interfaz gráfica
+
+La arquitectura incluye diferentes componentes destinados a mostrar información y pantallas al usuario.
+
+### HUD.js
+
+Presenta información durante la partida, incluyendo:
+
+- nivel;
+- escenario;
+- oleada;
+- puntuación;
+- vida;
+- Fervor;
+- combo;
+- precisión;
+- bajas;
+- disparos;
+- impactos;
+- beneficios pasivos de Fervor.
+
+### GameStateUI.js
+
+Forma parte de la presentación de los diferentes estados del videojuego.
+
+### PresentationUI.js
+
+Participa en las pantallas de presentación e interfaces utilizadas fuera o entre los momentos principales de combate.
+
+Durante las pruebas se observaron:
+
+- menú principal;
+- HUD;
+- pausa;
+- pantalla de nivel completado;
+- Game Over;
+- opción de reintento.
+
+---
+
+## 22. Game Over y reinicio
+
+Cuando la vida del jugador llega a cero, el videojuego muestra la pantalla:
+
+`LA FE HA CEDIDO`
+
+La interfaz ofrece:
+
+`[ R ] REINTENTAR`
+
+Durante las pruebas se comprobó que al presionar R comienza correctamente una nueva partida.
+
+---
+
+## 23. Controles
+
+Los controles comprobados en la versión final son:
+
+| Control | Función |
+|---|---|
+| W | Movimiento |
+| A | Movimiento |
+| S | Movimiento |
+| D | Movimiento |
+| SHIFT | Disparo |
+| E | Activación relacionada con Fervor |
+| ESC | Pausar / reanudar |
+| ENTER | Iniciar y continuar cuando la interfaz lo solicita |
+| R | Reintentar después de Game Over |
+
+---
+
+## 24. Servidor Node.js
+
+El proyecto incluye:
+
+`server/server.cjs`
+
+La versión final fue probada utilizando Node.js.
+
+Durante la prueba se utilizó:
+
+`node server/server.cjs`
+
+El servidor respondió correctamente indicando:
+
+`TENEBRAE: servidor funcionando en http://localhost:3000`
+
+Posteriormente el videojuego fue abierto desde el navegador utilizando:
+
+`http://localhost:3000`
+
+Esto permitió comprobar que la aplicación puede ejecutarse correctamente mediante el servidor local incluido en el proyecto.
+
+---
+
+## 25. Flujo general de ejecución
+
+El flujo general de ejecución de la versión final puede resumirse así:
+
+1. El usuario inicia el servidor con Node.js.
+2. El servidor publica los archivos necesarios para ejecutar el videojuego.
+3. El usuario abre `localhost:3000` desde el navegador.
+4. Se carga la interfaz principal.
+5. El jugador presiona ENTER para comenzar.
+6. Se inicializan los sistemas principales.
+7. El jugador controla al personaje mediante teclado.
+8. Los administradores coordinan enemigos, oleadas, proyectiles, puntuación, Fervor, power-ups y otros sistemas.
+9. El HUD presenta el estado actualizado de la partida.
+10. Las oleadas progresan durante cada nivel.
+11. El sistema puede presentar enfrentamientos especiales contra jefes.
+12. Al completar un nivel aparece una pantalla de resultados.
+13. ENTER permite continuar al siguiente nivel.
+14. Si la vida llega a cero aparece Game Over.
+15. R permite comenzar una nueva partida.
+
+---
+
+## 26. Relación entre componentes principales
+
+La arquitectura puede resumirse conceptualmente de la siguiente manera:
+
+Game
+|
+|-- Player
+|   |-- CharacterManager
+|   |-- FervorManager
+|   |-- Projectile / ProjectilePool
+|   `-- Habilidades
+|
+|-- EnemyManager
+|   |-- Enemy
+|   |-- BasicEnemy
+|   |-- CircularEnemy
+|   |-- HeavyEnemy
+|   |-- HunterEnemy
+|   |-- PursuerEnemy
+|   `-- TurretEnemy
+|
+|-- FormationManager
+|   `-- Diferentes tipos de formación
+|
+|-- WaveManager
+|
+|-- LevelManager
+|
+|-- BossManager
+|   |-- BestiaSieteCampanas
+|   |-- CultoLlaga
+|   |-- MilagroNegro
+|   `-- ObispoIncorrupto
+|
+|-- ScoreManager
+|-- ComboManager
+|-- PowerUpManager
+|-- DifficultyManager
+|-- EffectManager
+|-- AssetManager
+|-- AudioManager
+|-- BackgroundManager
+|
+`-- Interfaz
+    |-- HUD
+    |-- GameStateUI
+    `-- PresentationUI
+
+---
+
+## 27. Ventajas de la arquitectura utilizada
+
+La organización final presenta varias ventajas:
+
+- separación de responsabilidades;
+- organización de clases por sistema;
+- reutilización de comportamiento;
+- facilidad para incorporar diferentes tipos de enemigos;
+- administración independiente de jefes;
+- separación de recursos gráficos y lógica;
+- administración centralizada de audio;
+- separación de niveles y oleadas;
+- mantenimiento más sencillo;
+- posibilidad de ampliar el videojuego mediante nuevas entidades y sistemas.
+
+---
+
+## 28. Validación de la arquitectura
+
+La arquitectura descrita fue contrastada con la estructura de archivos de la versión final y con pruebas manuales realizadas durante la ejecución.
+
+Se comprobó funcionalmente:
+
+- inicio mediante Node.js;
+- carga del menú;
+- movimiento;
+- disparos;
+- Fervor;
+- pausa y reanudación;
+- power-ups;
+- sistema de vida;
+- Game Over;
+- reintento;
+- puntuación;
+- estadísticas;
+- combo;
+- colisiones;
+- cambio de nivel mediante pantalla intermedia;
+- aparición de un jefe;
+- música;
+- efectos de sonido.
+
+La estructura modular permite relacionar estas funciones observadas con los componentes especializados presentes dentro de `js/core/`.
+
+---
+
+## 29. Observación detectada durante las pruebas
+
+Durante una prueba de finalización del Nivel 1 se mostró un valor de precisión de `-5.9%`.
+
+Este resultado fue registrado como una incidencia para su revisión, debido a que el porcentaje de precisión mostrado al usuario no debería presentar normalmente un valor negativo.
+
+La incidencia queda documentada dentro de las pruebas funcionales y deberá considerarse al revisar la lógica de cálculo o presentación de estadísticas.

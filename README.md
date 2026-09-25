@@ -109,3 +109,27 @@ Para el desarrollo del proyecto se utilizaron las siguientes tecnologías:
 - Git: control de versiones del código y de la documentación.
 - GitHub: almacenamiento y colaboración en el repositorio del proyecto.
 - Visual Studio Code: editor utilizado para trabajar con los archivos del proyecto.
+
+---
+
+## Estado de la versión final
+
+La versión final de **Tenebrae: Sorrow & Faith** incorpora una estructura modular con sistemas independientes para jugador, enemigos, formaciones, oleadas, niveles, jefes, puntuación, combo, Fervor, power-ups, audio, fondos, efectos y recursos gráficos.
+
+### Controles comprobados
+
+| Tecla | Acción |
+|---|---|
+| W, A, S, D | Mover al jugador |
+| SHIFT | Disparar |
+| E | Activar Fervor cuando se dispone de carga |
+| ESC | Pausar / reanudar |
+| ENTER | Iniciar o continuar cuando la interfaz lo solicita |
+| R | Reintentar después de Game Over |
+
+### Ejecución mediante Node.js
+
+Con Node.js instalado, desde la carpeta raíz del proyecto ejecutar:
+
+```bash
+node server/server.cjs

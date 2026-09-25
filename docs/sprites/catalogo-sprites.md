@@ -575,3 +575,4 @@ La versión final de *Tenebrae: Sorrow & Faith* amplía considerablemente el apa
 La separación de los recursos dentro de `assets/` y de la lógica dentro de `js/core/` permite mantener una estructura organizada y facilita la administración de los elementos utilizados durante la ejecución del videojuego.
 
 Las pruebas realizadas sobre la versión final permitieron comprobar visualmente la carga de escenarios, sprites del jugador, enemigos y el jefe El Obispo Incorrupto, además del funcionamiento de proyectiles, power-ups y efectos asociados al combate.
+
