@@ -501,3 +501,186 @@ Los enemigos se liberan de la formación después de 3 segundos y continúan de 
 **Evidencia:**  
 Pendiente de agregar evidencia visual antes y después de la liberación de la formación.
 
+
+---
+
+## Pruebas funcionales de la versión final
+
+Las siguientes pruebas fueron realizadas manualmente sobre la versión final del videojuego ejecutada mediante el servidor local de Node.js.
+
+### PF-017 — Movimiento del jugador
+
+**Prueba realizada:**  
+Se utilizaron las teclas W, A, S y D durante una partida.
+
+**Resultado obtenido:**  
+El jugador se desplaza correctamente en las cuatro direcciones.
+
+**Estado:** Aprobado.
+
+---
+
+### PF-018 — Sistema de disparo
+
+**Prueba realizada:**  
+Se mantuvo presionada la tecla SHIFT durante la partida.
+
+**Resultado obtenido:**  
+El jugador realiza disparos correctamente mientras se mantiene presionada la tecla.
+
+**Estado:** Aprobado.
+
+---
+
+### PF-019 — Sistema de Fervor
+
+**Prueba realizada:**  
+Se acumuló Fervor durante el combate y, después de llenar una barra, se presionó la tecla E.
+
+**Resultado obtenido:**  
+El Fervor aumenta durante el combate y al activarlo se incrementa la cantidad de disparos del jugador.
+
+**Estado:** Aprobado.
+
+---
+
+### PF-020 — Pausa y reanudación
+
+**Prueba realizada:**  
+Durante una partida se presionó ESC y posteriormente se volvió a presionar ESC.
+
+**Resultado obtenido:**  
+La primera pulsación pausa correctamente el juego y la segunda permite reanudar la partida.
+
+**Estado:** Aprobado.
+
+---
+
+### PF-021 — Power-ups
+
+**Prueba realizada:**  
+Se recogieron power-ups disponibles durante la partida.
+
+**Resultado obtenido:**  
+Los power-ups pudieron ser recogidos y aplicaron sus efectos durante el juego.
+
+**Estado:** Aprobado.
+
+---
+
+### PF-022 — Sistema de vida y daño
+
+**Prueba realizada:**  
+Se permitió que el jugador recibiera daño de los enemigos.
+
+**Resultado obtenido:**  
+La barra de vida disminuye correctamente al recibir daño.
+
+**Estado:** Aprobado.
+
+---
+
+### PF-023 — Game Over y reintento
+
+**Prueba realizada:**  
+Se redujo la vida del jugador hasta llegar a cero y posteriormente se presionó R.
+
+**Resultado obtenido:**  
+Al quedarse sin vida aparece la pantalla "LA FE HA CEDIDO" con la opción de reintentar. Al presionar R comienza correctamente una nueva partida.
+
+**Estado:** Aprobado.
+
+---
+
+### PF-024 — Sistema de puntuación
+
+**Prueba realizada:**  
+Se eliminaron enemigos durante diferentes oleadas.
+
+**Resultado obtenido:**  
+La puntuación aumenta durante la partida conforme se eliminan enemigos.
+
+**Estado:** Aprobado.
+
+---
+
+### PF-025 — Finalización y cambio de nivel
+
+**Prueba realizada:**  
+Se completó el Nivel 1 y posteriormente se presionó ENTER en la pantalla de nivel completado.
+
+**Resultado obtenido:**  
+El juego muestra una pantalla con las estadísticas del nivel y la opción "CONTINUAR AL NIVEL 2". Al presionar ENTER se carga correctamente el Nivel 2.
+
+**Estado:** Aprobado.
+
+---
+
+### PF-026 — Sistema de jefes
+
+**Prueba realizada:**  
+Se avanzó hasta la Oleada 6/6 del Nivel 2.
+
+**Resultado obtenido:**  
+Aparece el jefe "El Obispo Incorrupto" con indicador de fase y una barra de vida propia.
+
+**Estado:** Aprobado parcialmente.
+
+**Observación:**  
+Se comprobó la aparición y funcionamiento del combate contra el jefe, pero no se realizó en esta prueba la derrota completa del mismo.
+
+---
+
+### PF-027 — Música y efectos de sonido
+
+**Prueba realizada:**  
+Se ejecutó una partida comprobando el audio durante el combate.
+
+**Resultado obtenido:**  
+Se reproduce música de fondo y efectos de sonido durante acciones como disparos y daño.
+
+**Estado:** Aprobado.
+
+---
+
+### PF-028 — Colisiones y daño a enemigos
+
+**Prueba realizada:**  
+Se realizaron disparos directamente contra los enemigos.
+
+**Resultado obtenido:**  
+Los impactos son detectados, los enemigos reciben daño y pueden ser eliminados después de recibir suficientes disparos.
+
+**Estado:** Aprobado.
+
+---
+
+### PF-029 — Sistema de combo
+
+**Prueba realizada:**  
+Se eliminaron enemigos de manera consecutiva.
+
+**Resultado obtenido:**  
+El multiplicador de COMBO aumenta al realizar eliminaciones consecutivas.
+
+**Estado:** Aprobado.
+
+---
+
+### PF-030 — Estadísticas de disparos e impactos
+
+**Prueba realizada:**  
+Se realizaron múltiples disparos contra enemigos durante una partida.
+
+**Resultado obtenido:**  
+Los contadores de DISPAROS e IMPACTOS aumentan durante el juego y el HUD muestra el porcentaje de PRECISIÓN.
+
+**Estado:** Aprobado.
+
+---
+
+## Incidencia detectada durante las pruebas
+
+Durante una prueba de finalización del Nivel 1 se observó que la pantalla de resultados mostró un valor de **PRECISIÓN de -5.9%**.
+
+Este comportamiento se registra como una incidencia, ya que un porcentaje de precisión normalmente no debería presentar un valor negativo. La incidencia deberá ser revisada en la lógica encargada del cálculo o presentación de las estadísticas del nivel.
